@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/inventoryFragment"
-        android:name="app.brucehsieh.inventorymanageeer.ui.home.InventoryFragment"
+        android:name="app.brucehsieh.inventorymanageeer.ui.inventory.InventoryFragment"
         android:label="inventory_fragment"
         tools:layout="@layout/inventory_fragment" />
 </navigation>
