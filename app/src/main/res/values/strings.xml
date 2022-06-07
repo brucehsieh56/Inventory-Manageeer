@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Inventory Manageeer</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_update">Update</string>
     <string name="text_price">%1$.2f $</string>
+    <string name="text_title_adjust_inventory">Adjust Inventory</string>
 </resources>

@@ -6,8 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import app.brucehsieh.inventorymanageeer.databinding.InventoryFragmentBinding
+import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog
 
 private const val TAG = "InventoryFragment"
 
@@ -15,7 +16,7 @@ class InventoryFragment : Fragment() {
 
     private var _binding: InventoryFragmentBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by viewModels<InventoryViewModel>()
+    private val viewModel by activityViewModels<InventoryViewModel>()
 
     private lateinit var adapter: InventoryAdapter
 
@@ -30,11 +31,20 @@ class InventoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = InventoryAdapter()
+        adapter = InventoryAdapter { listing ->
+
+            // Cache current selected
+            viewModel.updateCurrentSelected(listing)
+
+            // Launch dialog
+            parentFragmentManager.beginTransaction()
+                .add(InventoryAdjustDialog.newInstance(), null)
+                .commitAllowingStateLoss()
+        }
 
         binding.listingRecyclerView.adapter = adapter
 
-        viewModel.walmartListing.observe(viewLifecycleOwner) {
+        viewModel.walmartListings.observe(viewLifecycleOwner) {
             Log.i(TAG, "onViewCreated: ${it.size}")
             adapter.submitList(it)
         }

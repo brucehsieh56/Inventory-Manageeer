@@ -3,8 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/layout/inventory_adjust_dialog.xml" value="0.27685185185185185" />
         <entry key="app/src/main/res/layout/inventory_fragment.xml" value="0.26666666666666666" />
-        <entry key="app/src/main/res/layout/inventory_list_item.xml" value="0.34444444444444444" />
+        <entry key="app/src/main/res/layout/inventory_list_item.xml" value="0.37777777777777777" />
         <entry key="app/src/main/res/layout/main_activity.xml" value="0.1" />
         <entry key="app/src/main/res/layout/main_fragment.xml" value="0.1" />
       </map>

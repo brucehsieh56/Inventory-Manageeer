@@ -1,9 +1,7 @@
 package app.brucehsieh.inventorymanageeer.ui.inventory
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,23 +14,32 @@ private const val TAG = "InventoryAdapter"
 /**
  * [ListAdapter] to display store listings.
  * */
-class InventoryAdapter : ListAdapter<WalmartListing, InventoryAdapter.ViewHolder>(DiffCallback) {
+class InventoryAdapter(
+    private val onItemClick: (WalmartListing) -> Unit
+) : ListAdapter<WalmartListing, InventoryAdapter.ViewHolder>(DiffCallback) {
 
     class ViewHolder(
         private val binding: InventoryListItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(currentItem: WalmartListing) {
+        fun bind(
+            currentItem: WalmartListing,
+            onInventoryClick: (WalmartListing) -> Unit
+        ) {
             binding.apply {
                 productName.text = currentItem.productName
                 productSku.text = currentItem.productSku
                 productPrice.text =
                     itemView.context.getString(R.string.text_price, currentItem.price)
-                productInventory.setText(currentItem.quantity.toString())
 
-                productInventory.doOnTextChanged { text, start, before, count ->
-                    Log.i(TAG, "bind: $text, $start, $before, $count")
-                    // TODO: Update inventory
+                productInventory.apply {
+                    isEnabled = currentItem.quantity != -1
+                    isFocusable = currentItem.quantity != -1
+                    isClickable = currentItem.quantity != -1
+                    setText(currentItem.quantity.toString())
+                    setOnClickListener {
+                        onInventoryClick(currentItem)
+                    }
                 }
             }
         }
@@ -45,7 +52,7 @@ class InventoryAdapter : ListAdapter<WalmartListing, InventoryAdapter.ViewHolder
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentItem = getItem(position)
-        holder.bind(currentItem)
+        holder.bind(currentItem, onItemClick)
     }
 
     companion object DiffCallback : DiffUtil.ItemCallback<WalmartListing>() {

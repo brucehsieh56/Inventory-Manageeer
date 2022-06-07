@@ -10,12 +10,10 @@
         android:id="@+id/product_name"
         style="@style/TextAppearance.Material3.TitleSmall"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="4dp"
         android:ellipsize="end"
         android:maxLines="2"
-        app:layout_constraintBottom_toTopOf="@+id/product_sku"
         app:layout_constraintEnd_toStartOf="@+id/product_price"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,21 +21,26 @@
 
     <TextView
         android:id="@+id/product_price"
-        style="@style/TextAppearance.Material3.TitleMedium"
+        style="@style/TextAppearance.Material3.TitleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="56dp"
+        android:minWidth="72dp"
+        android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="10.99" />
+        tools:text="$ 10.99" />
 
     <EditText
         android:id="@+id/product_inventory"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:focusable="false"
+        android:hint="168"
         android:inputType="number"
         android:singleLine="true"
+        android:textSize="22sp"
+        android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="@+id/product_price"
         app:layout_constraintStart_toEndOf="@+id/product_name"
         app:layout_constraintStart_toStartOf="@+id/product_price"
@@ -48,8 +51,9 @@
         style="@style/TextAppearance.Material3.BodySmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/product_inventory"
+        android:layout_marginTop="4dp"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/product_name"
         tools:text="SKU-123-4567" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

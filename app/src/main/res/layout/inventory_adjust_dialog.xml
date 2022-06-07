@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/inventory_dialog_title"
+        style="@style/TextAppearance.Material3.HeadlineLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_title_adjust_inventory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/product_name"
+        style="@style/TextAppearance.Material3.TitleMedium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:ellipsize="end"
+        android:maxLines="4"
+        android:text="@string/app_name"
+        app:layout_constraintEnd_toEndOf="@+id/quantity_slider"
+        app:layout_constraintStart_toStartOf="@+id/quantity_slider"
+        app:layout_constraintTop_toBottomOf="@+id/inventory_dialog_title"
+        tools:text="Live Jewel Orchid" />
+
+    <TextView
+        android:id="@+id/product_sku"
+        style="@style/TextAppearance.Material3.BodySmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="@+id/product_name"
+        app:layout_constraintTop_toBottomOf="@+id/product_name"
+        tools:text="SKU-123-4567" />
+
+    <EditText
+        android:id="@+id/product_quantity"
+        style="@style/TextAppearance.Material3.HeadlineLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="4"
+        android:inputType="number"
+        android:singleLine="true"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="@+id/quantity_slider"
+        app:layout_constraintStart_toStartOf="@+id/quantity_slider"
+        app:layout_constraintTop_toBottomOf="@+id/product_sku"
+        tools:text="30" />
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/quantity_slider"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:stepSize="1"
+        android:valueFrom="0"
+        android:valueTo="500"
+        app:labelBehavior="floating"
+        app:layout_constraintBottom_toTopOf="@+id/update_quantity_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/product_quantity" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/update_quantity_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="@string/button_update"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/quantity_slider" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="@string/button_cancel"
+        app:layout_constraintBottom_toBottomOf="@+id/update_quantity_button"
+        app:layout_constraintEnd_toStartOf="@+id/update_quantity_button"
+        app:layout_constraintTop_toTopOf="@+id/update_quantity_button" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

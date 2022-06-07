@@ -3,12 +3,15 @@ package app.brucehsieh.inventorymanageeer.domain
 import app.brucehsieh.inventorymanageeer.common.exception.Failure
 import app.brucehsieh.inventorymanageeer.common.extension.empty
 import app.brucehsieh.inventorymanageeer.data.NetworkClient
+import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.Quantity
 import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartInventory
 import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartItems
 import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartToken
 import com.google.gson.Gson
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -168,6 +171,75 @@ object WalmartApiService {
         val request = Request.Builder()
             .url("${BASE_URL}inventory/?sku=$sku")
             .method("GET", null)
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Accept", "application/json")
+            .addHeader("WM_SVC.NAME", "Walmart Marketplace")
+            .addHeader("WM_QOS.CORRELATION_ID", "b3261d2d-028a-4ef7-8602-633c23200af6")
+            .addHeader("WM_SEC.ACCESS_TOKEN", token)
+            .addHeader("Authorization", credential)
+            .build()
+
+        return suspendCancellableCoroutine { continuation ->
+            NetworkClient.client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    continuation.resumeWithException(e)
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    when (response.isSuccessful) {
+                        true -> {
+                            if (response.body != null) {
+                                val walmartInventory = Gson().fromJson(
+                                    response.body!!.string(),
+                                    WalmartInventory::class.java
+                                )
+                                continuation.resume(walmartInventory)
+                            } else {
+                                continuation.resume(WalmartInventory.empty)
+                            }
+                        }
+                        false -> {
+                            throw Failure.ServerError(
+                                code = response.code,
+                                message = response.body!!.string(),
+                                description = when (response.code) {
+                                    400 -> "Bad Request"
+                                    401 -> "Unauthorized"
+                                    else -> String.empty()
+                                }
+                            )
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    /**
+     * Update inventory for one item by sku.
+     *
+     * @param sku
+     * @return Updated [WalmartInventory]
+     * */
+    suspend fun updateInventoryBySku(sku: String, newQuantity: Int): WalmartInventory {
+
+        val token = try {
+            getToken()
+        } catch (t: Throwable) {
+            throw t
+        }
+
+        val newWalmartInventory = WalmartInventory(
+            quantity = Quantity(amount = newQuantity),
+            sku = sku
+        )
+
+        val body = Gson().toJson(newWalmartInventory)
+            .toRequestBody("application/json".toMediaTypeOrNull())
+
+        val request = Request.Builder()
+            .url("${BASE_URL}inventory/?sku=$sku")
+            .method("PUT", body)
             .addHeader("Content-Type", "application/json")
             .addHeader("Accept", "application/json")
             .addHeader("WM_SVC.NAME", "Walmart Marketplace")
