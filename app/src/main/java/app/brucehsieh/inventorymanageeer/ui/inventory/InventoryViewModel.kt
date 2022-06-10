@@ -61,13 +61,14 @@ class InventoryViewModel : ViewModel() {
 
             } catch (t: CancellationException) {
                 Log.i(TAG, "getItems: Coroutine cancelled")
+            } catch (t: SocketTimeoutException) {
+                Log.i(TAG, "getItems: SocketTimeoutException")
                 t.printStackTrace()
             } catch (t: Failure.ServerError) {
                 Log.i(TAG, "getItems: ServerError ${t.code} ${t.message} ${t.cause}")
-            } catch (t: SocketTimeoutException) {
-                Log.i(TAG, "getItems: SocketTimeoutException")
+                t.printStackTrace()
             } catch (t: Throwable) {
-                Log.i(TAG, "getItems: error")
+                Log.i(TAG, "getItems: Throwable")
                 t.printStackTrace()
             }
         }

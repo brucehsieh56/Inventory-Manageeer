@@ -11,7 +11,7 @@ class InventoryAdapterTest {
 
     @Before
     fun setUp() {
-        inventoryAdapter = InventoryAdapter()
+        inventoryAdapter = InventoryAdapter {}
     }
 
     @Test
