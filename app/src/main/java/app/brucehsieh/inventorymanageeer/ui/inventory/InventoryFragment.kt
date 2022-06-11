@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import app.brucehsieh.inventorymanageeer.databinding.InventoryFragmentBinding
 import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog
+import app.brucehsieh.inventorymanageeer.ui.store.StorePageAdapter
 
 private const val TAG = "InventoryFragment"
 
@@ -25,6 +26,14 @@ class InventoryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = InventoryFragmentBinding.inflate(inflater)
+
+        /**
+         * Switch store.
+         * */
+        arguments?.takeIf { it.containsKey(StorePageAdapter.STORE_INDEX) }?.apply {
+            viewModel.onStoreChange(this.getInt(StorePageAdapter.STORE_INDEX))
+        }
+
         return binding.root
     }
 
@@ -44,9 +53,13 @@ class InventoryFragment : Fragment() {
 
         binding.listingRecyclerView.adapter = adapter
 
-        viewModel.walmartListings.observe(viewLifecycleOwner) {
-            Log.i(TAG, "onViewCreated: ${it.size}")
-            adapter.submitList(it)
+        viewModel.productListings.observe(viewLifecycleOwner) {
+            it?.let {
+                if (it.isNotEmpty()) {
+                    Log.i(TAG, "onViewCreated: ${it.size}")
+                    adapter.submitList(it)
+                }
+            }
         }
     }
 
