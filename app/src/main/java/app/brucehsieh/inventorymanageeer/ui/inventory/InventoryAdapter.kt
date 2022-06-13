@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import app.brucehsieh.inventorymanageeer.R
 import app.brucehsieh.inventorymanageeer.databinding.InventoryListItemBinding
-import app.brucehsieh.inventorymanageeer.model.WalmartListing
+import app.brucehsieh.inventorymanageeer.model.BaseListing
 
 private const val TAG = "InventoryAdapter"
 
@@ -15,16 +15,16 @@ private const val TAG = "InventoryAdapter"
  * [ListAdapter] to display store listings.
  * */
 class InventoryAdapter(
-    private val onItemClick: (WalmartListing) -> Unit
-) : ListAdapter<WalmartListing, InventoryAdapter.ViewHolder>(DiffCallback) {
+    private val onItemClick: (BaseListing) -> Unit
+) : ListAdapter<BaseListing, InventoryAdapter.ViewHolder>(DiffCallback) {
 
     class ViewHolder(
         private val binding: InventoryListItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(
-            currentItem: WalmartListing,
-            onInventoryClick: (WalmartListing) -> Unit
+            currentItem: BaseListing,
+            onInventoryClick: (BaseListing) -> Unit
         ) {
             binding.apply {
                 productName.text = currentItem.productName
@@ -55,12 +55,12 @@ class InventoryAdapter(
         holder.bind(currentItem, onItemClick)
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<WalmartListing>() {
-        override fun areItemsTheSame(oldItem: WalmartListing, newItem: WalmartListing): Boolean {
+    companion object DiffCallback : DiffUtil.ItemCallback<BaseListing>() {
+        override fun areItemsTheSame(oldItem: BaseListing, newItem: BaseListing): Boolean {
             return oldItem.productName == newItem.productName
         }
 
-        override fun areContentsTheSame(oldItem: WalmartListing, newItem: WalmartListing): Boolean {
+        override fun areContentsTheSame(oldItem: BaseListing, newItem: BaseListing): Boolean {
             return oldItem == newItem
         }
     }

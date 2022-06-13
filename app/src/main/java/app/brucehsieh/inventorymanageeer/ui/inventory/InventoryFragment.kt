@@ -53,6 +53,11 @@ class InventoryFragment : Fragment() {
 
         binding.listingRecyclerView.adapter = adapter
 
+        /**
+         * Set to null to avoid crash
+         * */
+        binding.listingRecyclerView.itemAnimator = null
+
         viewModel.productListings.observe(viewLifecycleOwner) {
             it?.let {
                 if (it.isNotEmpty()) {

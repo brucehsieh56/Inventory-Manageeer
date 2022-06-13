@@ -3,7 +3,10 @@ package app.brucehsieh.inventorymanageeer.ui.inventory
 import android.util.Log
 import androidx.lifecycle.*
 import app.brucehsieh.inventorymanageeer.common.exception.Failure
-import app.brucehsieh.inventorymanageeer.domain.WalmartApiService
+import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.ShopifyApiService
+import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService
+import app.brucehsieh.inventorymanageeer.model.BaseListing
+import app.brucehsieh.inventorymanageeer.model.ShopifyListing
 import app.brucehsieh.inventorymanageeer.model.WalmartListing
 import app.brucehsieh.inventorymanageeer.ui.store.StoreList
 import kotlinx.coroutines.*
@@ -16,14 +19,13 @@ class InventoryViewModel : ViewModel() {
     private var updateInventoryJob: Job? = null
 
     private val _currentStore = MutableLiveData<StoreList>()
-
-    private val _walmartListings = MutableLiveData<List<WalmartListing>>()
-    private val _shopifyListings = MutableLiveData<List<WalmartListing>>()
+    private val _walmartListings = MutableLiveData<List<BaseListing>>()
+    private val _shopifyListings = MutableLiveData<List<BaseListing>>()
 
     /**
      * [productListings] can be null because
      * */
-    val productListings: LiveData<List<WalmartListing>?>
+    val productListings: LiveData<List<BaseListing>?>
         get() = _currentStore.switchMap {
             when (it) {
                 StoreList.Walmart -> _walmartListings
@@ -32,34 +34,73 @@ class InventoryViewModel : ViewModel() {
             }
         }
 
-    var currentSelectedListing: WalmartListing? = null
+    var currentSelectedListing: BaseListing? = null
         private set
 
-//    init {
-//        getItems()
-//    }
-
+    /**
+     * Update the [_currentStore].
+     * */
     fun onStoreChange(position: Int) {
         val storeName = StoreList.values()[position]
         _currentStore.value = storeName
 
         when (storeName) {
-            StoreList.Walmart -> getItems()
-            StoreList.Shopify -> Unit
+            StoreList.Walmart -> getWalmartItems()
+            StoreList.Shopify -> getShopifyItems()
         }
     }
 
     /**
      * Cache the current selected listing.
      * */
-    fun updateCurrentSelected(listing: WalmartListing) {
+    fun updateCurrentSelected(listing: BaseListing) {
         currentSelectedListing = listing
     }
 
     /**
-     * Get product listings.
+     * Get Shopify product listings.
      * */
-    private fun getItems() {
+    private fun getShopifyItems() {
+        viewModelScope.launch {
+            try {
+                val shopifyItems = ShopifyApiService.getItems()
+
+                // Nothing in our store listing
+                if (shopifyItems.products.isEmpty()) return@launch
+
+                // TODO: Handle variants
+                _shopifyListings.value = shopifyItems.products.map {
+                    ShopifyListing(
+                        productName = it.title,
+                        productSku = it.variants.first().sku,
+                        quantity = it.variants.first().inventoryQuantity,
+                        price = it.variants.first().price.toFloat(),
+                        imageUrl = it.image.src
+                    )
+                }
+
+            } catch (t: CancellationException) {
+                Log.i(TAG, "getItems: Coroutine cancelled")
+            } catch (t: SocketTimeoutException) {
+                Log.i(TAG, "getItems: SocketTimeoutException")
+                t.printStackTrace()
+            } catch (t: Failure.ServerError) {
+                Log.i(TAG, "getItems: ServerError ${t.code} ${t.message} ${t.cause}")
+                t.printStackTrace()
+            } catch (t: Throwable) {
+                Log.i(TAG, "getItems: Throwable")
+                t.printStackTrace()
+            }
+        }
+    }
+
+    /**
+     * Get Walmart product listings.
+     * */
+    private fun getWalmartItems() {
+
+        if (_walmartListings.value?.isNotEmpty() == true) return
+
         viewModelScope.launch {
             try {
                 val walmartItems = WalmartApiService.getItems()
@@ -80,7 +121,7 @@ class InventoryViewModel : ViewModel() {
                 _walmartListings.value = _walmartListings.value?.map {
                     async {
                         val (quantity, _) = WalmartApiService.getInventoryBySku(sku = it.productSku)
-                        it.copy(quantity = quantity.amount)
+                        (it as WalmartListing).copy(quantity = quantity.amount)
                     }
                 }?.awaitAll()
 
@@ -116,7 +157,7 @@ class InventoryViewModel : ViewModel() {
 
                 _walmartListings.value = _walmartListings.value?.map {
                     if (it.productSku == newWalmartInventory.sku) {
-                        it.copy(quantity = newWalmartInventory.quantity.amount)
+                        (it as WalmartListing).copy(quantity = newWalmartInventory.quantity.amount)
                     } else {
                         it
                     }

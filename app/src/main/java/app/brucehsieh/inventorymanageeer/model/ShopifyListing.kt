@@ -1,9 +1,9 @@
 package app.brucehsieh.inventorymanageeer.model
 
 /**
- * A data class holds Walmart listing data that is ready for UI.
+ * A data class holds Shopify listing data that is ready for UI.
  * */
-data class WalmartListing(
+data class ShopifyListing(
     override val productName: String,
     override val productSku: String,
     override val quantity: Int,

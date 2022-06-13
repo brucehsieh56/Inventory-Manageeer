@@ -1,4 +1,4 @@
-package app.brucehsieh.inventorymanageeer.domain
+package app.brucehsieh.inventorymanageeer.data.remote.serviceapi
 
 import app.brucehsieh.inventorymanageeer.common.exception.Failure
 import app.brucehsieh.inventorymanageeer.common.extension.empty

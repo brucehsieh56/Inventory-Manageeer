@@ -8,7 +8,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import app.brucehsieh.inventorymanageeer.common.extension.ShortSnackbar
 import app.brucehsieh.inventorymanageeer.databinding.InventoryAdjustDialogBinding
-import app.brucehsieh.inventorymanageeer.model.WalmartListing
+import app.brucehsieh.inventorymanageeer.model.BaseListing
 import app.brucehsieh.inventorymanageeer.ui.inventory.InventoryViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -24,7 +24,7 @@ class InventoryAdjustDialog : DialogFragment() {
     private val viewModel by activityViewModels<InventoryViewModel>()
 
     private var newQuantity = 0
-    private lateinit var currentListing: WalmartListing
+    private lateinit var currentListing: BaseListing
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = InventoryAdjustDialogBinding.inflate(LayoutInflater.from(context))

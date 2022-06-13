@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import app.brucehsieh.inventorymanageeer.R
+import androidx.fragment.app.activityViewModels
 import app.brucehsieh.inventorymanageeer.databinding.StoreFragmentBinding
+import app.brucehsieh.inventorymanageeer.ui.inventory.InventoryViewModel
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 /**
@@ -16,6 +18,7 @@ class StoreFragment : Fragment() {
 
     private var _binding: StoreFragmentBinding? = null
     private val binding get() = _binding!!
+    private val viewModel by activityViewModels<InventoryViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,6 +38,23 @@ class StoreFragment : Fragment() {
             tab.text = StoreList.values()[position].name
             tab.setIcon(StoreList.getIconDrawable(StoreList.values()[position]))
         }.attach()
+
+        // Set up listener
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+
+                // Notify viewModel to change store
+                tab?.position?.let {
+                    viewModel.onStoreChange(it)
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                // TODO: Scroll to top and force to refresh
+            }
+        })
     }
 
     override fun onDestroyView() {
