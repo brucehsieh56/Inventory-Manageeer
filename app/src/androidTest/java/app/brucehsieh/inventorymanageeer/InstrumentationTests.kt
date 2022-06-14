@@ -41,7 +41,7 @@ class InstrumentationTests {
     fun recyclerView_stayAtTop_listingsLoadedCorrectly() {
         // Arrange
         val resourceId = R.id.product_sku
-        val productSku = "OG039"
+        val productSku = "2Y-0GQX-Z9Q0"
 
         // Act
         // Assert
@@ -55,7 +55,7 @@ class InstrumentationTests {
     fun recyclerView_scrollToBottom_listingsLoadedCorrectly() {
         // Arrange
         val resourceId = R.id.product_sku
-        val firstProductSku = "OG039"
+        val firstProductSku = "2Y-0GQX-Z9Q0"
         val lastProductSku = "OG015"
 
         val recyclerViewId = R.id.listing_recycler_view

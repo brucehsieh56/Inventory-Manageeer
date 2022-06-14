@@ -34,10 +34,10 @@ class InventoryAdapterTest {
         val dataset = listOf(data1, data2)
 
         // Act
-        inventoryAdapter.submitList(dataset)
+        inventoryAdapter.data = dataset
 
         // Assert
         assertEquals(inventoryAdapter.itemCount, dataset.size)
-        assertEquals(inventoryAdapter.currentList.first(), data1)
+        assertEquals(inventoryAdapter.data.first(), data1)
     }
 }
