@@ -8,5 +8,8 @@ data class ShopifyListing(
     override val productSku: String,
     override val quantity: Int,
     override val price: Float,
-    override val imageUrl: String? = null
+    override val imageUrl: String? = null,
+
+    // Unique to Shopify listing
+    val inventoryItemId: Long? = null
 ) : BaseListing

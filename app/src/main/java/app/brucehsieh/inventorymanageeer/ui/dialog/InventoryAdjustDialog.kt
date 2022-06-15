@@ -9,7 +9,9 @@ import androidx.fragment.app.activityViewModels
 import app.brucehsieh.inventorymanageeer.common.extension.ShortSnackbar
 import app.brucehsieh.inventorymanageeer.databinding.InventoryAdjustDialogBinding
 import app.brucehsieh.inventorymanageeer.model.BaseListing
+import app.brucehsieh.inventorymanageeer.model.ShopifyListing
 import app.brucehsieh.inventorymanageeer.ui.inventory.InventoryViewModel
+import app.brucehsieh.inventorymanageeer.ui.store.StoreList
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 private const val TAG = "InventoryAdjustDialog"
@@ -82,10 +84,22 @@ class InventoryAdjustDialog : DialogFragment() {
             }
 
             updateQuantityButton.setOnClickListener {
-                viewModel.updateInventoryBySku(
-                    sku = viewModel.currentSelectedListing!!.productSku,
-                    newQuantity = newQuantity
-                )
+                // Check current store
+                when (viewModel.currentStore.value) {
+                    StoreList.Walmart -> {
+                        viewModel.updateInventoryBySku(
+                            sku = viewModel.currentSelectedListing!!.productSku,
+                            newQuantity = newQuantity
+                        )
+                    }
+                    StoreList.Shopify -> {
+                        viewModel.updateShopifyInventory(
+                            inventoryItemId = (viewModel.currentSelectedListing as ShopifyListing).inventoryItemId!!,
+                            newQuantity = newQuantity
+                        )
+                    }
+                    else -> Unit
+                }
 
                 dismissAllowingStateLoss()
             }

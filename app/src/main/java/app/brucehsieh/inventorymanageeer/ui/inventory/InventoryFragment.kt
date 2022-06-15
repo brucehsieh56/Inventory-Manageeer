@@ -58,15 +58,19 @@ class InventoryFragment : Fragment() {
          * */
         binding.listingRecyclerView.itemAnimator = null
 
-        viewModel.productListings.observe(viewLifecycleOwner) {
-
-            it ?: return@observe
+        viewModel.currentStore.observe(viewLifecycleOwner) {
 
             /**
-             * Enforce recyclerView to update in order to remove the retained product images.
+             * Clean up and reset [RecyclerView] in order to remove the retained product images when
+             * switching stores.
              * */
             binding.listingRecyclerView.removeAllViews()
             binding.listingRecyclerView.recycledViewPool.clear()
+        }
+
+        viewModel.productListings.observe(viewLifecycleOwner) {
+
+            it ?: return@observe
 
             if (it.isNotEmpty()) {
                 Log.i(TAG, "onViewCreated: ${it.size}")

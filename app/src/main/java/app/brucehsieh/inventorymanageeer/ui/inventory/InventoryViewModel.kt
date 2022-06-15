@@ -19,6 +19,7 @@ class InventoryViewModel : ViewModel() {
     private var updateInventoryJob: Job? = null
 
     private val _currentStore = MutableLiveData<StoreList>()
+    val currentStore: LiveData<StoreList> get() = _currentStore
     private val _walmartListings = MutableLiveData<List<BaseListing>>()
     private val _shopifyListings = MutableLiveData<List<BaseListing>>()
 
@@ -75,7 +76,8 @@ class InventoryViewModel : ViewModel() {
                         productSku = it.variants.first().sku,
                         quantity = it.variants.first().inventoryQuantity,
                         price = it.variants.first().price.toFloat(),
-                        imageUrl = it.image.src
+                        imageUrl = it.image.src,
+                        inventoryItemId = it.variants.first().inventoryItemId
                     )
                 }
 
@@ -158,6 +160,41 @@ class InventoryViewModel : ViewModel() {
                 _walmartListings.value = _walmartListings.value?.map {
                     if (it.productSku == newWalmartInventory.sku) {
                         (it as WalmartListing).copy(quantity = newWalmartInventory.quantity.amount)
+                    } else {
+                        it
+                    }
+                }
+            } catch (t: CancellationException) {
+                Log.i(TAG, "updateInventoryBySku: CancellationException")
+            } catch (t: SocketTimeoutException) {
+                Log.i(TAG, "updateInventoryBySku: SocketTimeoutException")
+            } catch (t: Throwable) {
+                Log.i(TAG, "updateInventoryBySku: error")
+                t.printStackTrace()
+            }
+        }
+    }
+
+    /**
+     * Update Shopify inventory.
+     * */
+    fun updateShopifyInventory(inventoryItemId: Long, newQuantity: Int) {
+        updateInventoryJob?.cancel()
+        updateInventoryJob = viewModelScope.launch {
+            try {
+                val shopifyInventoryLevel = ShopifyApiService.getSingleInventory(inventoryItemId)
+
+                val inventoryLevel = shopifyInventoryLevel.inventory_levels.first()
+
+                val newInventoryLevel = ShopifyApiService.updateSingleInventory(
+                    inventoryItemId = inventoryItemId,
+                    locationId = inventoryLevel.locationId,
+                    newQuantity = newQuantity
+                )
+
+                _shopifyListings.value = _shopifyListings.value?.map {
+                    if ((it as ShopifyListing).inventoryItemId == newInventoryLevel.inventory_level.inventoryItemId) {
+                        it.copy(quantity = newInventoryLevel.inventory_level.available)
                     } else {
                         it
                     }

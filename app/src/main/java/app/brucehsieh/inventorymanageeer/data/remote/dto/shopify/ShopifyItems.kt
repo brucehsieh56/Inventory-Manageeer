@@ -65,7 +65,7 @@ data class Variant(
     val grams: Int,
     val id: Long,
     val image_id: Any,
-    val inventory_item_id: Long,
+    @SerializedName("inventory_item_id") val inventoryItemId: Long,
     val inventory_management: String,
     val inventory_policy: String,
     @SerializedName("inventory_quantity") val inventoryQuantity: Int,
