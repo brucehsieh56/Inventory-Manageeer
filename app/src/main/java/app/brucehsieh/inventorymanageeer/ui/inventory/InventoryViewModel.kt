@@ -69,18 +69,36 @@ class InventoryViewModel : ViewModel() {
                 // Nothing in our store listing
                 if (shopifyItems.products.isEmpty()) return@launch
 
-                // TODO: Handle variants
-                _shopifyListings.value = shopifyItems.products.map {
-                    ShopifyListing(
-                        productName = it.title,
-                        productSku = it.variants.first().sku,
-                        quantity = it.variants.first().inventoryQuantity,
-                        price = it.variants.first().price.toFloat(),
-                        imageUrl = it.image.src,
-                        inventoryItemId = it.variants.first().inventoryItemId
-                    )
+                /**
+                 * Create a [BaseListing] for each product variants.
+                 * */
+                val tempShopifyListings = mutableListOf<BaseListing>()
+                shopifyItems.products.forEach { product ->
+
+                    // This product has variants
+                    product.variants.forEach { variant ->
+                        tempShopifyListings.add(
+                            ShopifyListing(
+                                productName = "${product.title} - ${variant.title}",
+                                productSku = variant.sku,
+                                quantity = variant.inventoryQuantity,
+                                price = variant.price.toFloat(),
+                                imageUrl = if (variant.imageId == null) {
+                                    // no product variants, use default image
+                                    product.image.src
+                                } else {
+                                    // has product variants, use variant's first image
+                                    product.images.first { image ->
+                                        image.id == variant.imageId
+                                    }.src
+                                },
+                                inventoryItemId = variant.inventoryItemId
+                            )
+                        )
+                    }
                 }
 
+                _shopifyListings.value = tempShopifyListings
             } catch (t: CancellationException) {
                 Log.i(TAG, "getItems: Coroutine cancelled")
             } catch (t: SocketTimeoutException) {
