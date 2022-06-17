@@ -1,20 +1,17 @@
 package app.brucehsieh.inventorymanageeer.data.remote.serviceapi
 
-import app.brucehsieh.inventorymanageeer.common.exception.Failure
 import app.brucehsieh.inventorymanageeer.common.extension.empty
-import app.brucehsieh.inventorymanageeer.data.NetworkClient
+import app.brucehsieh.inventorymanageeer.common.functional.suspendRequestCall
 import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.Quantity
 import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartInventory
 import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartItems
 import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartToken
 import com.google.gson.Gson
-import kotlinx.coroutines.suspendCancellableCoroutine
-import okhttp3.*
+import okhttp3.Credentials
+import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.IOException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 private const val TAG = "WalmartApiService"
 
@@ -57,41 +54,13 @@ object WalmartApiService {
             .addHeader("Authorization", credential)
             .build()
 
-        return suspendCancellableCoroutine { continuation ->
-            NetworkClient.client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    continuation.resumeWithException(e)
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    when (response.isSuccessful) {
-                        true -> {
-                            if (response.body != null) {
-                                val walmartToken = Gson().fromJson(
-                                    response.body!!.string(),
-                                    WalmartToken::class.java
-                                )
-                                continuation.resume(walmartToken.accessToken)
-                            } else {
-                                continuation.resume(String.empty())
-                            }
-                        }
-                        false -> {
-                            val throwable = Failure.ServerError(
-                                code = response.code,
-                                message = response.body!!.string(),
-                                description = when (response.code) {
-                                    400 -> "Bad Request"
-                                    401 -> "Unauthorized"
-                                    else -> String.empty()
-                                }
-                            )
-                            continuation.resumeWithException(throwable)
-                        }
-                    }
-                }
-            })
-        }
+        return suspendRequestCall(
+            request = request,
+            transform = { jsonString ->
+                Gson().fromJson(jsonString, WalmartToken::class.java).accessToken
+            },
+            default = String.empty()
+        )
     }
 
     /**
@@ -118,40 +87,13 @@ object WalmartApiService {
             .addHeader("Authorization", credential)
             .build()
 
-        return suspendCancellableCoroutine { continuation ->
-            NetworkClient.client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    continuation.resumeWithException(e)
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    when (response.isSuccessful) {
-                        true -> {
-                            if (response.body != null) {
-                                val walmartItems = Gson().fromJson(
-                                    response.body!!.string(),
-                                    WalmartItems::class.java
-                                )
-                                continuation.resume(walmartItems)
-                            } else {
-                                continuation.resume(WalmartItems.empty)
-                            }
-                        }
-                        false -> {
-                            throw Failure.ServerError(
-                                code = response.code,
-                                message = response.body!!.string(),
-                                description = when (response.code) {
-                                    400 -> "Bad Request"
-                                    401 -> "Unauthorized"
-                                    else -> String.empty()
-                                }
-                            )
-                        }
-                    }
-                }
-            })
-        }
+        return suspendRequestCall(
+            request = request,
+            transform = { jsonString ->
+                Gson().fromJson(jsonString, WalmartItems::class.java)
+            },
+            default = WalmartItems.empty
+        )
     }
 
     /**
@@ -179,40 +121,13 @@ object WalmartApiService {
             .addHeader("Authorization", credential)
             .build()
 
-        return suspendCancellableCoroutine { continuation ->
-            NetworkClient.client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    continuation.resumeWithException(e)
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    when (response.isSuccessful) {
-                        true -> {
-                            if (response.body != null) {
-                                val walmartInventory = Gson().fromJson(
-                                    response.body!!.string(),
-                                    WalmartInventory::class.java
-                                )
-                                continuation.resume(walmartInventory)
-                            } else {
-                                continuation.resume(WalmartInventory.empty)
-                            }
-                        }
-                        false -> {
-                            throw Failure.ServerError(
-                                code = response.code,
-                                message = response.body!!.string(),
-                                description = when (response.code) {
-                                    400 -> "Bad Request"
-                                    401 -> "Unauthorized"
-                                    else -> String.empty()
-                                }
-                            )
-                        }
-                    }
-                }
-            })
-        }
+        return suspendRequestCall(
+            request = request,
+            transform = { jsonString ->
+                Gson().fromJson(jsonString, WalmartInventory::class.java)
+            },
+            default = WalmartInventory.empty
+        )
     }
 
     /**
@@ -248,39 +163,12 @@ object WalmartApiService {
             .addHeader("Authorization", credential)
             .build()
 
-        return suspendCancellableCoroutine { continuation ->
-            NetworkClient.client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    continuation.resumeWithException(e)
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    when (response.isSuccessful) {
-                        true -> {
-                            if (response.body != null) {
-                                val walmartInventory = Gson().fromJson(
-                                    response.body!!.string(),
-                                    WalmartInventory::class.java
-                                )
-                                continuation.resume(walmartInventory)
-                            } else {
-                                continuation.resume(WalmartInventory.empty)
-                            }
-                        }
-                        false -> {
-                            throw Failure.ServerError(
-                                code = response.code,
-                                message = response.body!!.string(),
-                                description = when (response.code) {
-                                    400 -> "Bad Request"
-                                    401 -> "Unauthorized"
-                                    else -> String.empty()
-                                }
-                            )
-                        }
-                    }
-                }
-            })
-        }
+        return suspendRequestCall(
+            request = request,
+            transform = { jsonString ->
+                Gson().fromJson(jsonString, WalmartInventory::class.java)
+            },
+            default = WalmartInventory.empty
+        )
     }
 }
