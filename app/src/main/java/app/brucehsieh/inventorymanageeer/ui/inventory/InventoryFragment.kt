@@ -58,7 +58,7 @@ class InventoryFragment : Fragment() {
          * */
         binding.listingRecyclerView.itemAnimator = null
 
-        viewModel.currentStore.observe(viewLifecycleOwner) {
+        viewModel.inventoryViewState.observe(viewLifecycleOwner) {
 
             /**
              * Clean up and reset [RecyclerView] in order to remove the retained product images when

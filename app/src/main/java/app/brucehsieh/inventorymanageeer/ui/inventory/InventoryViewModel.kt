@@ -8,6 +8,7 @@ import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiServic
 import app.brucehsieh.inventorymanageeer.model.BaseListing
 import app.brucehsieh.inventorymanageeer.model.ShopifyListing
 import app.brucehsieh.inventorymanageeer.model.WalmartListing
+import app.brucehsieh.inventorymanageeer.ui.state.InventoryViewState
 import app.brucehsieh.inventorymanageeer.ui.store.StoreList
 import kotlinx.coroutines.*
 import java.net.SocketTimeoutException
@@ -18,37 +19,68 @@ class InventoryViewModel : ViewModel() {
 
     private var updateInventoryJob: Job? = null
 
-    private val _currentStore = MutableLiveData<StoreList>()
-    val currentStore: LiveData<StoreList> get() = _currentStore
+    /**
+     * State that contains UI-related data and settings.
+     * */
+    private val _inventoryViewState = MutableLiveData<InventoryViewState>()
+    val inventoryViewState: LiveData<InventoryViewState> get() = _inventoryViewState
+
     private val _walmartListings = MutableLiveData<List<BaseListing>>()
     private val _shopifyListings = MutableLiveData<List<BaseListing>>()
-
-    /**
-     * [productListings] can be null because
-     * */
-    val productListings: LiveData<List<BaseListing>?>
-        get() = _currentStore.switchMap {
-            when (it) {
-                StoreList.Walmart -> _walmartListings
-                StoreList.Shopify -> _shopifyListings
-                else -> throw IllegalArgumentException("No such Store exists.")
-            }
-        }
 
     var currentSelectedListing: BaseListing? = null
         private set
 
     /**
-     * Update the [_currentStore].
+     * [productListings] can be null because
+     * */
+    val productListings: LiveData<List<BaseListing>?>
+        get() = _inventoryViewState.switchMap { state ->
+            when (state.currentStore) {
+                StoreList.Walmart -> {
+                    _walmartListings.value = if (state.isAscending) {
+                        _walmartListings.value?.sortedBy { it.productName }
+                    } else {
+                        _walmartListings.value?.sortedByDescending { it.productName }
+                    }
+                    _walmartListings
+                }
+                StoreList.Shopify -> {
+                    _shopifyListings.value = if (state.isAscending) {
+                        _shopifyListings.value?.sortedBy { it.productName }
+                    } else {
+                        _shopifyListings.value?.sortedByDescending { it.productName }
+                    }
+                    _shopifyListings
+                }
+            }
+        }
+
+    /**
+     * Update the [_inventoryViewState].
      * */
     fun onStoreChange(position: Int) {
         val storeName = StoreList.values()[position]
-        _currentStore.value = storeName
+        _inventoryViewState.value = InventoryViewState(
+            currentStore = storeName,
+            isAscending = _inventoryViewState.value?.isAscending ?: true
+        )
 
         when (storeName) {
             StoreList.Walmart -> getWalmartItems()
             StoreList.Shopify -> getShopifyItems()
         }
+    }
+
+    fun sorting(isAscending: Boolean) {
+        _inventoryViewState.value = _inventoryViewState.value?.copy(isAscending = isAscending)
+    }
+
+    /**
+     * Run listing sorting.
+     * */
+    private fun runSorting() {
+        _inventoryViewState.value = _inventoryViewState.value?.copy()
     }
 
     /**
@@ -62,6 +94,9 @@ class InventoryViewModel : ViewModel() {
      * Get Shopify product listings.
      * */
     private fun getShopifyItems() {
+
+        if (_shopifyListings.value?.isNotEmpty() == true) return
+
         viewModelScope.launch {
             try {
                 val shopifyItems = ShopifyApiService.getItems()
@@ -99,6 +134,8 @@ class InventoryViewModel : ViewModel() {
                 }
 
                 _shopifyListings.value = tempShopifyListings
+
+                runSorting()
             } catch (t: CancellationException) {
                 Log.i(TAG, "getItems: Coroutine cancelled")
             } catch (t: SocketTimeoutException) {
@@ -145,6 +182,10 @@ class InventoryViewModel : ViewModel() {
                     }
                 }?.awaitAll()
 
+                /**
+                 * Enforce sorting after GET inventory.
+                 * */
+                runSorting()
             } catch (t: CancellationException) {
                 Log.i(TAG, "getItems: Coroutine cancelled")
             } catch (t: SocketTimeoutException) {

@@ -85,7 +85,7 @@ class InventoryAdjustDialog : DialogFragment() {
 
             updateQuantityButton.setOnClickListener {
                 // Check current store
-                when (viewModel.currentStore.value) {
+                when (viewModel.inventoryViewState.value?.currentStore) {
                     StoreList.Walmart -> {
                         viewModel.updateInventoryBySku(
                             sku = viewModel.currentSelectedListing!!.productSku,

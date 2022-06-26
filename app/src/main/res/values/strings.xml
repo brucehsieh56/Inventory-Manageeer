@@ -6,4 +6,5 @@
     <string name="text_title_adjust_inventory">Adjust Inventory</string>
     <string name="tab_layout_switch_store">Switch store</string>
     <string name="image_view_product_image">Product image</string>
+    <string name="menu_sort_action">Sort Action</string>
 </resources>
