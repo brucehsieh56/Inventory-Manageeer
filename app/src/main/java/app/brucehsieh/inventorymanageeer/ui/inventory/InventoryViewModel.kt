@@ -66,10 +66,10 @@ class InventoryViewModel : ViewModel() {
             isAscending = _inventoryViewState.value?.isAscending ?: true
         )
 
-        when (storeName) {
-            StoreList.Walmart -> getWalmartItems()
-            StoreList.Shopify -> getShopifyItems()
-        }
+//        when (storeName) {
+//            StoreList.Walmart -> getWalmartItems()
+//            StoreList.Shopify -> getShopifyItems()
+//        }
     }
 
     fun sorting(isAscending: Boolean) {
@@ -93,7 +93,7 @@ class InventoryViewModel : ViewModel() {
     /**
      * Get Shopify product listings.
      * */
-    private fun getShopifyItems() {
+     fun getShopifyItems() {
 
         if (_shopifyListings.value?.isNotEmpty() == true) return
 
@@ -154,7 +154,7 @@ class InventoryViewModel : ViewModel() {
     /**
      * Get Walmart product listings.
      * */
-    private fun getWalmartItems() {
+     fun getWalmartItems() {
 
         if (_walmartListings.value?.isNotEmpty() == true) return
 

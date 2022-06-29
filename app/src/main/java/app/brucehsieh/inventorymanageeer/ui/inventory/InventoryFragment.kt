@@ -7,8 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.distinctUntilChanged
+import app.brucehsieh.inventorymanageeer.data.MarketPreferences
+import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService
 import app.brucehsieh.inventorymanageeer.databinding.InventoryFragmentBinding
 import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog
+import app.brucehsieh.inventorymanageeer.ui.dialog.MarketKeyDialog
+import app.brucehsieh.inventorymanageeer.ui.store.StoreList
 import app.brucehsieh.inventorymanageeer.ui.store.StorePageAdapter
 
 private const val TAG = "InventoryFragment"
@@ -19,6 +25,7 @@ class InventoryFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<InventoryViewModel>()
 
+    private lateinit var marketPreferences: MarketPreferences
     private lateinit var adapter: InventoryAdapter
 
     override fun onCreateView(
@@ -39,6 +46,8 @@ class InventoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        marketPreferences = MarketPreferences(requireContext())
 
         adapter = InventoryAdapter { listing ->
 
@@ -66,6 +75,28 @@ class InventoryFragment : Fragment() {
              * */
             binding.listingRecyclerView.removeAllViews()
             binding.listingRecyclerView.recycledViewPool.clear()
+
+            when (it.currentStore) {
+                StoreList.Walmart -> {
+                    marketPreferences.walmartKeyFlow.asLiveData().distinctUntilChanged()
+                        .observe(viewLifecycleOwner) { (key, secret) ->
+                            if (key.isEmpty() || secret.isEmpty()) {
+                                // Launch dialog for user to enter key and secret
+                                parentFragmentManager.beginTransaction()
+                                    .add(MarketKeyDialog.newInstance(), null)
+                                    .commitAllowingStateLoss()
+                            } else {
+                                // Load key and secret
+                                WalmartApiService.setKey(key = key)
+                                WalmartApiService.setSecret(secret = secret)
+
+                                // Run request
+                                viewModel.getWalmartItems()
+                            }
+                        }
+                }
+                StoreList.Shopify -> viewModel.getShopifyItems()
+            }
         }
 
         viewModel.productListings.observe(viewLifecycleOwner) {

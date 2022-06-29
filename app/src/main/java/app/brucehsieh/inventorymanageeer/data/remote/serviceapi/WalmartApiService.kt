@@ -20,10 +20,24 @@ private const val TAG = "WalmartApiService"
  * */
 object WalmartApiService {
     private const val BASE_URL = "https://marketplace.walmartapis.com/v3/"
-    private const val WALMART_API_KEY = "YOUR_WALMART_API_KEY"
-    private const val WALMART_API_SECRET = "YOUR_WALMART_API_SECRET"
+    private var WALMART_API_KEY = String.empty()
+    private var WALMART_API_SECRET = String.empty()
 
-    private val credential = Credentials.basic(WALMART_API_KEY, WALMART_API_SECRET)
+    private val credential get() = Credentials.basic(WALMART_API_KEY, WALMART_API_SECRET)
+
+    /**
+     * Set Walmart API key.
+     * */
+    fun setKey(key: String) {
+        WALMART_API_KEY = key
+    }
+
+    /**
+     * Set Walmart API secret
+     * */
+    fun setSecret(secret: String) {
+        WALMART_API_SECRET = secret
+    }
 
     /**
      * Get token authentication.
@@ -69,6 +83,8 @@ object WalmartApiService {
      * @return [WalmartItems].
      * */
     suspend fun getItems(): WalmartItems {
+
+        if (WALMART_API_KEY.isEmpty() || WALMART_API_SECRET.isEmpty()) return WalmartItems.empty
 
         val token = try {
             getToken()
