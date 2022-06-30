@@ -24,6 +24,9 @@ class MarketPreferences(context: Context) {
 
     private val walmartKey = stringPreferencesKey("walmartKey")
     private val walmartSecret = stringPreferencesKey("walmartSecret")
+    private val shopifyKey = stringPreferencesKey("shopifyKey")
+    private val shopifySecret = stringPreferencesKey("shopifySecret")
+    private val shopifyStoreName = stringPreferencesKey("shopifyStoreName")
 
     /**
      * Walmart key and secret exposed as flow.
@@ -44,12 +47,41 @@ class MarketPreferences(context: Context) {
         }
 
     /**
+     * Shopify key, secret, and store name exposed as flow.
+     * */
+    val shopifyKeyFlow: Flow<Triple<String, String, String>> = context.dataStore.data
+        .catch {
+            if (it is IOException) {
+                it.printStackTrace()
+                emit(emptyPreferences())
+            } else {
+                throw it
+            }
+        }.map { preferences ->
+            val key = preferences[shopifyKey] ?: String.empty()
+            val secret = preferences[shopifySecret] ?: String.empty()
+            val storeName = preferences[shopifyStoreName] ?: String.empty()
+            Triple(key, secret, storeName)
+        }
+
+    /**
      * Suspend function to store user Walmart key and secret.
      * */
     suspend fun storeWalmartKey(key: String, secret: String, context: Context) {
         context.dataStore.edit { preferences ->
             preferences[walmartKey] = key
             preferences[walmartSecret] = secret
+        }
+    }
+
+    /**
+     * Suspend function to store user Shopify key, secret, and store name.
+     * */
+    suspend fun storeShopifyKey(key: String, secret: String, storeName: String, context: Context) {
+        context.dataStore.edit { preferences ->
+            preferences[shopifyKey] = key
+            preferences[shopifySecret] = secret
+            preferences[shopifyStoreName] = storeName
         }
     }
 }

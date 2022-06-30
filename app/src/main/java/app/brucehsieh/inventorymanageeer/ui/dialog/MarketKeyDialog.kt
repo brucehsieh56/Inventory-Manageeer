@@ -3,9 +3,13 @@ package app.brucehsieh.inventorymanageeer.ui.dialog
 import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import app.brucehsieh.inventorymanageeer.data.MarketPreferences
 import app.brucehsieh.inventorymanageeer.databinding.KeyInputDialogBinding
+import app.brucehsieh.inventorymanageeer.ui.inventory.InventoryViewModel
+import app.brucehsieh.inventorymanageeer.ui.store.StoreList
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +26,8 @@ class MarketKeyDialog : DialogFragment() {
 
     private var _binding: KeyInputDialogBinding? = null
     private val binding get() = _binding!!
+    private val viewModel by activityViewModels<InventoryViewModel>()
+
     private lateinit var marketPreferences: MarketPreferences
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -39,11 +45,27 @@ class MarketKeyDialog : DialogFragment() {
                     // Update key and secret
                     val key = keyTextInputLayout.editText?.text.toString()
                     val secret = secretTextInputLayout.editText?.text.toString()
-                    marketPreferences.storeWalmartKey(
-                        key = key,
-                        secret = secret,
-                        context = requireContext()
-                    )
+
+                    when (viewModel.inventoryViewState.value?.currentStore) {
+                        StoreList.Walmart -> {
+                            marketPreferences.storeWalmartKey(
+                                key = key,
+                                secret = secret,
+                                context = requireContext()
+                            )
+                        }
+                        StoreList.Shopify -> {
+                            val storeName = storeNameTextInputLayout.editText?.text.toString()
+
+                            marketPreferences.storeShopifyKey(
+                                key = key,
+                                secret = secret,
+                                storeName = storeName,
+                                context = requireContext()
+                            )
+                        }
+                        null -> Unit
+                    }
 
                     dismissAllowingStateLoss()
                 }
@@ -51,9 +73,22 @@ class MarketKeyDialog : DialogFragment() {
 
             coroutineScope.launch {
                 // Read saved key and secret, and display them to the editTexts
-                val (key, secret) = marketPreferences.walmartKeyFlow.first()
-                keyTextInputLayout.editText?.setText(key)
-                secretTextInputLayout.editText?.setText(secret)
+                when (viewModel.inventoryViewState.value?.currentStore) {
+                    StoreList.Walmart -> {
+                        storeNameTextInputLayout.visibility = View.INVISIBLE
+                        val (key, secret) = marketPreferences.walmartKeyFlow.first()
+                        keyTextInputLayout.editText?.setText(key)
+                        secretTextInputLayout.editText?.setText(secret)
+                    }
+                    StoreList.Shopify -> {
+                        storeNameTextInputLayout.visibility = View.VISIBLE
+                        val (key, secret, storeName) = marketPreferences.shopifyKeyFlow.first()
+                        keyTextInputLayout.editText?.setText(key)
+                        secretTextInputLayout.editText?.setText(secret)
+                        storeNameTextInputLayout.editText?.setText(storeName)
+                    }
+                    null -> Unit
+                }
             }
         }
 

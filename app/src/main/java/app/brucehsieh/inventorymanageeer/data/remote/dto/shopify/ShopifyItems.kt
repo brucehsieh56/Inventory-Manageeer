@@ -19,7 +19,7 @@ data class Product(
     val created_at: String,
     val handle: String,
     val id: Long,
-    val image: Image,
+    val image: Image?,
     val images: List<Image>,
     val options: List<Option>,
     val product_type: String,

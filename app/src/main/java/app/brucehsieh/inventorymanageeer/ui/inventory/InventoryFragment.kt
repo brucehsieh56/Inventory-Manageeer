@@ -10,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.distinctUntilChanged
 import app.brucehsieh.inventorymanageeer.data.MarketPreferences
+import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.ShopifyApiService
 import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService
 import app.brucehsieh.inventorymanageeer.databinding.InventoryFragmentBinding
 import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog
@@ -19,6 +20,13 @@ import app.brucehsieh.inventorymanageeer.ui.store.StorePageAdapter
 
 private const val TAG = "InventoryFragment"
 
+/**
+ * [Fragment] inside [StorePageAdapter] for [StoreFragment].
+ *
+ * [InventoryFragment] will only be launch once for each page of [StorePageAdapter]. Each
+ * [InventoryFragment] has its own lifecycle. When switching pages, the [InventoryFragment] will be
+ * paused instead of destroyed.
+ * */
 class InventoryFragment : Fragment() {
 
     private var _binding: InventoryFragmentBinding? = null
@@ -27,6 +35,7 @@ class InventoryFragment : Fragment() {
 
     private lateinit var marketPreferences: MarketPreferences
     private lateinit var adapter: InventoryAdapter
+    private var tabPosition: Int = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,7 +47,8 @@ class InventoryFragment : Fragment() {
          * Switch store.
          * */
         arguments?.takeIf { it.containsKey(StorePageAdapter.STORE_INDEX) }?.apply {
-            viewModel.onStoreChange(this.getInt(StorePageAdapter.STORE_INDEX))
+            tabPosition = this.getInt(StorePageAdapter.STORE_INDEX)
+            viewModel.onStoreChange(tabPosition)
         }
 
         return binding.root
@@ -68,19 +78,22 @@ class InventoryFragment : Fragment() {
         binding.listingRecyclerView.itemAnimator = null
 
         viewModel.inventoryViewState.observe(viewLifecycleOwner) {
-
-            /**
-             * Clean up and reset [RecyclerView] in order to remove the retained product images when
-             * switching stores.
-             * */
-            binding.listingRecyclerView.removeAllViews()
-            binding.listingRecyclerView.recycledViewPool.clear()
-
+            Log.i(TAG, "onViewCreated: 12345 $it $this")
             when (it.currentStore) {
                 StoreList.Walmart -> {
+
+                    /**
+                     * Return if the tab position is not matched.
+                     * */
+                    if (tabPosition != 0) return@observe
+
                     marketPreferences.walmartKeyFlow.asLiveData().distinctUntilChanged()
                         .observe(viewLifecycleOwner) { (key, secret) ->
+
                             if (key.isEmpty() || secret.isEmpty()) {
+
+                                cleanUpAdapter()
+
                                 // Launch dialog for user to enter key and secret
                                 parentFragmentManager.beginTransaction()
                                     .add(MarketKeyDialog.newInstance(), null)
@@ -95,7 +108,30 @@ class InventoryFragment : Fragment() {
                             }
                         }
                 }
-                StoreList.Shopify -> viewModel.getShopifyItems()
+                StoreList.Shopify -> {
+
+                    /**
+                     * Return if the tab position is not matched.
+                     * */
+                    if (tabPosition != 1) return@observe
+
+                    marketPreferences.shopifyKeyFlow.asLiveData().distinctUntilChanged()
+                        .observe(viewLifecycleOwner) { (key, secret, storeName) ->
+
+                            if (key.isEmpty() || secret.isEmpty() || storeName.isEmpty()) {
+                                cleanUpAdapter()
+                                // Launch dialog for user to enter key and secret
+                                parentFragmentManager.beginTransaction()
+                                    .add(MarketKeyDialog.newInstance(), null)
+                                    .commitAllowingStateLoss()
+                            } else {
+                                ShopifyApiService.setKey(key = key)
+                                ShopifyApiService.setSecret(secret = secret)
+                                ShopifyApiService.setStoreName(storeName = storeName)
+                                viewModel.getShopifyItems()
+                            }
+                        }
+                }
             }
         }
 
@@ -111,8 +147,36 @@ class InventoryFragment : Fragment() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        /**
+         * Clean up RecyclerView before switching pages to remove retained product images.
+         * */
+        cleanUpRecyclerView()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    /**
+     * Clean up and reset [adapter] in order to remove the retained product information when
+     * switching stores. Although every [InventoryFragment] page inside [StorePageAdapter] has its
+     * own [adapter], the product information do not get clean up when switching pages.
+     * */
+    private fun cleanUpAdapter() {
+        adapter.data = emptyList()
+        adapter.notifyDataSetChanged()
+    }
+
+    /**
+     * Clean up and reset [RecyclerView] in order to remove the retained product information when
+     * switching stores.
+     * */
+    private fun cleanUpRecyclerView() {
+        binding.listingRecyclerView.removeAllViews()
+        binding.listingRecyclerView.recycledViewPool.clear()
     }
 }

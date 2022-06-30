@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/ic_image_placeholder.xml" value="0.1645" />
         <entry key="app/src/main/res/drawable/ic_market_place_walmart.xml" value="0.236" />
         <entry key="app/src/main/res/layout/inventory_adjust_dialog.xml" value="0.27685185185185185" />
         <entry key="app/src/main/res/layout/inventory_fragment.xml" value="0.35555555555555557" />

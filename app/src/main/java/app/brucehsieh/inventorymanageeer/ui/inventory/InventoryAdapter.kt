@@ -49,6 +49,8 @@ class InventoryAdapter(
                     productImage.setImageResource(R.drawable.ic_image_placeholder)
                 } else {
                     productImage.load(currentItem.imageUrl) {
+                        placeholder(R.drawable.ic_image_placeholder)
+                        error(R.drawable.ic_image_placeholder)
                         crossfade(true)
                     }
                 }

@@ -1,5 +1,6 @@
 package app.brucehsieh.inventorymanageeer.data.remote.serviceapi
 
+import app.brucehsieh.inventorymanageeer.common.extension.empty
 import app.brucehsieh.inventorymanageeer.common.functional.suspendRequestCall
 import app.brucehsieh.inventorymanageeer.data.remote.dto.shopify.InventoryLevel
 import app.brucehsieh.inventorymanageeer.data.remote.dto.shopify.PostInventoryLevel
@@ -14,12 +15,25 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * A singleton to run Shopify related requests.
  * */
 object ShopifyApiService {
-    private const val SHOPIFY_API_KEY = "SHOPIFY_API_KEY"
-    private const val SHOPIFY_API_SECRET = "SHOPIFY_API_SECRET"
-    private const val STORE_NAME = "STORE_NAME"
 
-    private const val BASE_URL =
-        "https://$SHOPIFY_API_KEY:$SHOPIFY_API_SECRET@$STORE_NAME.myshopify.com/admin/api/"
+    private var SHOPIFY_API_KEY = String.empty()
+    private var SHOPIFY_API_SECRET = String.empty()
+    private var STORE_NAME = String.empty()
+
+    private val BASE_URL
+        get() = "https://$SHOPIFY_API_KEY:$SHOPIFY_API_SECRET@$STORE_NAME.myshopify.com/admin/api/"
+
+    fun setKey(key: String) {
+        SHOPIFY_API_KEY = key
+    }
+
+    fun setSecret(secret: String) {
+        SHOPIFY_API_SECRET = secret
+    }
+
+    fun setStoreName(storeName: String) {
+        STORE_NAME = storeName
+    }
 
     /**
      * Get items.
@@ -27,6 +41,11 @@ object ShopifyApiService {
      * @return [ShopifyItems]
      * */
     suspend fun getItems(): ShopifyItems {
+
+        if (SHOPIFY_API_KEY.isEmpty() || SHOPIFY_API_SECRET.isEmpty() || STORE_NAME.isEmpty()) {
+            return ShopifyItems.empty
+        }
+
         val version = "2021-10"
         val resource = "products"
 

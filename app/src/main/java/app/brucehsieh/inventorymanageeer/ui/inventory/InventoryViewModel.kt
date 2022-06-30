@@ -3,6 +3,7 @@ package app.brucehsieh.inventorymanageeer.ui.inventory
 import android.util.Log
 import androidx.lifecycle.*
 import app.brucehsieh.inventorymanageeer.common.exception.Failure
+import app.brucehsieh.inventorymanageeer.common.extension.empty
 import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.ShopifyApiService
 import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService
 import app.brucehsieh.inventorymanageeer.model.BaseListing
@@ -23,7 +24,7 @@ class InventoryViewModel : ViewModel() {
      * State that contains UI-related data and settings.
      * */
     private val _inventoryViewState = MutableLiveData<InventoryViewState>()
-    val inventoryViewState: LiveData<InventoryViewState> get() = _inventoryViewState
+    val inventoryViewState: LiveData<InventoryViewState> get() = _inventoryViewState.distinctUntilChanged()
 
     private val _walmartListings = MutableLiveData<List<BaseListing>>()
     private val _shopifyListings = MutableLiveData<List<BaseListing>>()
@@ -61,6 +62,10 @@ class InventoryViewModel : ViewModel() {
      * */
     fun onStoreChange(position: Int) {
         val storeName = StoreList.values()[position]
+
+        // Return if the store name is the same as current store
+        if (storeName == _inventoryViewState.value?.currentStore) return
+
         _inventoryViewState.value = InventoryViewState(
             currentStore = storeName,
             isAscending = _inventoryViewState.value?.isAscending ?: true
@@ -93,7 +98,7 @@ class InventoryViewModel : ViewModel() {
     /**
      * Get Shopify product listings.
      * */
-     fun getShopifyItems() {
+    fun getShopifyItems() {
 
         if (_shopifyListings.value?.isNotEmpty() == true) return
 
@@ -119,8 +124,8 @@ class InventoryViewModel : ViewModel() {
                                 quantity = variant.inventoryQuantity,
                                 price = variant.price.toFloat(),
                                 imageUrl = if (variant.imageId == null) {
-                                    // no product variants, use default image
-                                    product.image.src
+                                    // no product variants, use default image, which could be null
+                                    product.image?.src ?: String.empty()
                                 } else {
                                     // has product variants, use variant's first image
                                     product.images.first { image ->
@@ -154,7 +159,7 @@ class InventoryViewModel : ViewModel() {
     /**
      * Get Walmart product listings.
      * */
-     fun getWalmartItems() {
+    fun getWalmartItems() {
 
         if (_walmartListings.value?.isNotEmpty() == true) return
 
