@@ -15,6 +15,7 @@ import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiServic
 import app.brucehsieh.inventorymanageeer.databinding.InventoryFragmentBinding
 import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog
 import app.brucehsieh.inventorymanageeer.ui.dialog.MarketKeyDialog
+import app.brucehsieh.inventorymanageeer.ui.dialog.MarketKeyDialog.Companion.STORE_KEY_INT
 import app.brucehsieh.inventorymanageeer.ui.store.StoreList
 import app.brucehsieh.inventorymanageeer.ui.store.StorePageAdapter
 
@@ -78,7 +79,6 @@ class InventoryFragment : Fragment() {
         binding.listingRecyclerView.itemAnimator = null
 
         viewModel.inventoryViewState.observe(viewLifecycleOwner) {
-            Log.i(TAG, "onViewCreated: 12345 $it $this")
             when (it.currentStore) {
                 StoreList.Walmart -> {
 
@@ -89,14 +89,20 @@ class InventoryFragment : Fragment() {
 
                     marketPreferences.walmartKeyFlow.asLiveData().distinctUntilChanged()
                         .observe(viewLifecycleOwner) { (key, secret) ->
-
                             if (key.isEmpty() || secret.isEmpty()) {
 
                                 cleanUpAdapter()
 
                                 // Launch dialog for user to enter key and secret
                                 parentFragmentManager.beginTransaction()
-                                    .add(MarketKeyDialog.newInstance(), null)
+                                    .add(
+                                        MarketKeyDialog.newInstance().apply {
+                                            arguments = Bundle().apply {
+                                                putInt(STORE_KEY_INT, 0)
+                                            }
+                                        },
+                                        null
+                                    )
                                     .commitAllowingStateLoss()
                             } else {
                                 // Load key and secret
@@ -117,12 +123,18 @@ class InventoryFragment : Fragment() {
 
                     marketPreferences.shopifyKeyFlow.asLiveData().distinctUntilChanged()
                         .observe(viewLifecycleOwner) { (key, secret, storeName) ->
-
                             if (key.isEmpty() || secret.isEmpty() || storeName.isEmpty()) {
                                 cleanUpAdapter()
+
                                 // Launch dialog for user to enter key and secret
                                 parentFragmentManager.beginTransaction()
-                                    .add(MarketKeyDialog.newInstance(), null)
+                                    .add(
+                                        MarketKeyDialog.newInstance().apply {
+                                            arguments = Bundle().apply {
+                                                putInt(STORE_KEY_INT, 1)
+                                            }
+                                        }, null
+                                    )
                                     .commitAllowingStateLoss()
                             } else {
                                 ShopifyApiService.setKey(key = key)

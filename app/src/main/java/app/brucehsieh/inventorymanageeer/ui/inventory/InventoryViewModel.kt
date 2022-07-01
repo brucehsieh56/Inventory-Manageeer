@@ -19,6 +19,7 @@ private const val TAG = "InventoryViewModel"
 class InventoryViewModel : ViewModel() {
 
     private var updateInventoryJob: Job? = null
+    private var getItemsJob: Job? = null
 
     /**
      * State that contains UI-related data and settings.
@@ -102,7 +103,8 @@ class InventoryViewModel : ViewModel() {
 
         if (_shopifyListings.value?.isNotEmpty() == true) return
 
-        viewModelScope.launch {
+        getItemsJob?.cancel()
+        getItemsJob = viewModelScope.launch {
             try {
                 val shopifyItems = ShopifyApiService.getItems()
 
@@ -163,7 +165,8 @@ class InventoryViewModel : ViewModel() {
 
         if (_walmartListings.value?.isNotEmpty() == true) return
 
-        viewModelScope.launch {
+        getItemsJob?.cancel()
+        getItemsJob = viewModelScope.launch {
             try {
                 val walmartItems = WalmartApiService.getItems()
 

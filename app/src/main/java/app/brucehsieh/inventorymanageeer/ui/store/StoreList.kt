@@ -8,7 +8,6 @@ import app.brucehsieh.inventorymanageeer.R
 enum class StoreList(val position: Int) {
     Walmart(position = 0), Shopify(position = 1);
 
-
     companion object {
         /**
          * Get the corresponding drawable.

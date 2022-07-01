@@ -5,10 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
 import app.brucehsieh.inventorymanageeer.data.MarketPreferences
 import app.brucehsieh.inventorymanageeer.databinding.KeyInputDialogBinding
-import app.brucehsieh.inventorymanageeer.ui.inventory.InventoryViewModel
 import app.brucehsieh.inventorymanageeer.ui.store.StoreList
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
@@ -26,18 +24,61 @@ class MarketKeyDialog : DialogFragment() {
 
     private var _binding: KeyInputDialogBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by activityViewModels<InventoryViewModel>()
 
     private lateinit var marketPreferences: MarketPreferences
+    private lateinit var currentMarketplace: StoreList
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
         _binding = KeyInputDialogBinding.inflate(LayoutInflater.from(context))
-
         marketPreferences = MarketPreferences(requireContext())
 
-        binding.apply {
+        /**
+         * Get current marketplace from [getArguments].
+         * */
+        currentMarketplace = when (arguments?.getInt(STORE_KEY_INT)) {
+            0 -> StoreList.Walmart
+            1 -> StoreList.Shopify
+            else -> throw IllegalArgumentException("Invalid marketplace.")
+        }
 
+        setUpUI()
+        setUpListeners()
+
+        return MaterialAlertDialogBuilder(requireContext()).setView(binding.root).create()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        coroutineScope.coroutineContext.cancel()
+        _binding = null
+    }
+
+    private fun setUpUI() {
+        binding.apply {
+            coroutineScope.launch {
+                // Read saved key and secret, and display them to the editTexts
+                when (currentMarketplace) {
+                    StoreList.Walmart -> {
+                        storeNameTextInputLayout.visibility = View.INVISIBLE
+                        val (key, secret) = marketPreferences.walmartKeyFlow.first()
+                        keyTextInputLayout.editText?.setText(key)
+                        secretTextInputLayout.editText?.setText(secret)
+                    }
+                    StoreList.Shopify -> {
+                        storeNameTextInputLayout.visibility = View.VISIBLE
+                        val (key, secret, storeName) = marketPreferences.shopifyKeyFlow.first()
+                        keyTextInputLayout.editText?.setText(key)
+                        secretTextInputLayout.editText?.setText(secret)
+                        storeNameTextInputLayout.editText?.setText(storeName)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setUpListeners() {
+        binding.apply {
             cancelButton.setOnClickListener { dismissAllowingStateLoss() }
 
             updateKeyValueButton.setOnClickListener {
@@ -46,7 +87,7 @@ class MarketKeyDialog : DialogFragment() {
                     val key = keyTextInputLayout.editText?.text.toString()
                     val secret = secretTextInputLayout.editText?.text.toString()
 
-                    when (viewModel.inventoryViewState.value?.currentStore) {
+                    when (currentMarketplace) {
                         StoreList.Walmart -> {
                             marketPreferences.storeWalmartKey(
                                 key = key,
@@ -64,44 +105,18 @@ class MarketKeyDialog : DialogFragment() {
                                 context = requireContext()
                             )
                         }
-                        null -> Unit
                     }
 
                     dismissAllowingStateLoss()
                 }
             }
-
-            coroutineScope.launch {
-                // Read saved key and secret, and display them to the editTexts
-                when (viewModel.inventoryViewState.value?.currentStore) {
-                    StoreList.Walmart -> {
-                        storeNameTextInputLayout.visibility = View.INVISIBLE
-                        val (key, secret) = marketPreferences.walmartKeyFlow.first()
-                        keyTextInputLayout.editText?.setText(key)
-                        secretTextInputLayout.editText?.setText(secret)
-                    }
-                    StoreList.Shopify -> {
-                        storeNameTextInputLayout.visibility = View.VISIBLE
-                        val (key, secret, storeName) = marketPreferences.shopifyKeyFlow.first()
-                        keyTextInputLayout.editText?.setText(key)
-                        secretTextInputLayout.editText?.setText(secret)
-                        storeNameTextInputLayout.editText?.setText(storeName)
-                    }
-                    null -> Unit
-                }
-            }
         }
-
-        return MaterialAlertDialogBuilder(requireContext()).setView(binding.root).create()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        coroutineScope.coroutineContext.cancel()
-        _binding = null
     }
 
     companion object {
+
+        const val STORE_KEY_INT = "STORE_KEY_INT"
+
         fun newInstance(): MarketKeyDialog {
             return MarketKeyDialog()
         }

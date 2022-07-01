@@ -23,6 +23,7 @@ object WalmartApiService {
     private var WALMART_API_KEY = String.empty()
     private var WALMART_API_SECRET = String.empty()
 
+    private lateinit var token: String
     private val credential get() = Credentials.basic(WALMART_API_KEY, WALMART_API_SECRET)
 
     /**
@@ -86,7 +87,7 @@ object WalmartApiService {
 
         if (WALMART_API_KEY.isEmpty() || WALMART_API_SECRET.isEmpty()) return WalmartItems.empty
 
-        val token = try {
+        token = try {
             getToken()
         } catch (t: Throwable) {
             throw t
@@ -120,11 +121,11 @@ object WalmartApiService {
      * */
     suspend fun getInventoryBySku(sku: String): WalmartInventory {
 
-        val token = try {
-            getToken()
-        } catch (t: Throwable) {
-            throw t
-        }
+//        val token = try {
+//            getToken()
+//        } catch (t: Throwable) {
+//            throw t
+//        }
 
         val request = Request.Builder()
             .url("${BASE_URL}inventory/?sku=$sku")
