@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import androidx.fragment.app.DialogFragment
+import app.brucehsieh.inventorymanageeer.R
 import app.brucehsieh.inventorymanageeer.data.MarketPreferences
 import app.brucehsieh.inventorymanageeer.databinding.KeyInputDialogBinding
 import app.brucehsieh.inventorymanageeer.ui.store.StoreList
@@ -64,6 +65,11 @@ class MarketKeyDialog : DialogFragment() {
                         val (key, secret) = marketPreferences.walmartKeyFlow.first()
                         keyTextInputLayout.editText?.setText(key)
                         secretTextInputLayout.editText?.setText(secret)
+
+                        keyDialogDescription.text = getString(
+                            R.string.dialog_key_description_walmart,
+                            currentMarketplace.name
+                        )
                     }
                     StoreList.Shopify -> {
                         storeNameTextInputLayout.visibility = View.VISIBLE
@@ -71,6 +77,11 @@ class MarketKeyDialog : DialogFragment() {
                         keyTextInputLayout.editText?.setText(key)
                         secretTextInputLayout.editText?.setText(secret)
                         storeNameTextInputLayout.editText?.setText(storeName)
+
+                        keyDialogDescription.text = getString(
+                            R.string.dialog_key_description_shopify,
+                            currentMarketplace.name
+                        )
                     }
                 }
             }
