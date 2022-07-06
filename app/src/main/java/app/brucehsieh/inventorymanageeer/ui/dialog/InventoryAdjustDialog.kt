@@ -27,10 +27,20 @@ class InventoryAdjustDialog : DialogFragment() {
 
     private var newQuantity = 0
     private lateinit var currentListing: BaseListing
+    private lateinit var currentMarketplace: StoreList
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = InventoryAdjustDialogBinding.inflate(LayoutInflater.from(context))
         currentListing = viewModel.currentSelectedListing!!
+
+        /**
+         * Get current marketplace from [getArguments].
+         * */
+        currentMarketplace = when (arguments?.getInt(MarketKeyDialog.STORE_KEY_INT)) {
+            0 -> StoreList.Walmart
+            1 -> StoreList.Shopify
+            else -> throw IllegalArgumentException("Invalid marketplace.")
+        }
 
         setUpUI()
         setUpListeners()
@@ -85,7 +95,7 @@ class InventoryAdjustDialog : DialogFragment() {
 
             updateQuantityButton.setOnClickListener {
                 // Check current store
-                when (viewModel.inventoryViewState.value?.currentStore) {
+                when (currentMarketplace) {
                     StoreList.Walmart -> {
                         viewModel.updateInventoryBySku(
                             sku = viewModel.currentSelectedListing!!.productSku,
@@ -98,7 +108,6 @@ class InventoryAdjustDialog : DialogFragment() {
                             newQuantity = newQuantity
                         )
                     }
-                    else -> Unit
                 }
 
                 dismissAllowingStateLoss()

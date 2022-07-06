@@ -67,7 +67,11 @@ class InventoryFragment : Fragment() {
 
             // Launch dialog
             parentFragmentManager.beginTransaction()
-                .add(InventoryAdjustDialog.newInstance(), null)
+                .add(InventoryAdjustDialog.newInstance().apply {
+                    arguments = Bundle().apply {
+                        putInt(STORE_KEY_INT, tabPosition)
+                    }
+                }, null)
                 .commitAllowingStateLoss()
         }
 

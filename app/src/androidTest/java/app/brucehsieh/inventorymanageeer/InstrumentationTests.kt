@@ -37,13 +37,22 @@ class InstrumentationTests {
     private val timeoutMillis: Int = 1_000
     private val attemptTimeoutMillis: Long = 100L
 
+    private val walmartKey = "walmartKey"
+    private val walmartSecret = "walmartSecret"
     @Test
-    fun recyclerView_stayAtTop_listingsLoadedCorrectly() {
+    fun marketKeyDialog_enterKeyAndSecretForWalmart_stayAtTop_listingLoadedCorrectly() {
         // Arrange
         val resourceId = R.id.product_sku
         val productSku = "2Y-0GQX-Z9Q0"
 
         // Act
+        typeKeyAndSecret(key = walmartKey, secret = walmartSecret)
+
+        onView(withId(R.id.update_key_value_button))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+            .perform(click())
+
         // Assert
         findAndCheckTheView(
             viewInteraction = onView(allOf(withId(resourceId), withText(productSku))),
@@ -98,9 +107,15 @@ class InstrumentationTests {
         )
 
         /**
+         * Wait for listing being sorted.
+         * */
+        Thread.sleep(timeoutMillis.toLong())
+
+        /**
          * Once inventory is updated, click the inventory [EditText] of the first item to launch the
          * [InventoryAdjustDialog].
          * */
+
         onView(withId(R.id.listing_recycler_view))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<InventoryAdapter.ViewHolder>(
@@ -108,7 +123,7 @@ class InstrumentationTests {
                     clickChildViewWithId(R.id.product_inventory)
                 )
             )
-
+        Thread.sleep(timeoutMillis.toLong())
         /**
          * Click the [EditText] on [InventoryAdjustDialog] and adjust by [newQuantity].
          *
@@ -154,6 +169,11 @@ class InstrumentationTests {
         )
 
         /**
+         * Wait for listing being sorted.
+         * */
+        Thread.sleep(timeoutMillis.toLong())
+
+        /**
          * Once inventory is updated, click the inventory [EditText] of the first item to launch the
          * [InventoryAdjustDialog].
          * */
@@ -196,6 +216,25 @@ class InstrumentationTests {
             viewInteraction = onView(withId(R.id.listing_recycler_view)),
             viewAssertion = matches(atPosition(0, hasDescendant(withText(newQuantity.toString()))))
         )
+    }
+
+    /**
+     * Enter [key] and [secret] for a given marketplace.
+     * */
+    private fun typeKeyAndSecret(key: String, secret: String) {
+        onView(withId(R.id.key_text_input))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+            .perform(typeText(key))
+
+        onView(withId(R.id.secret_text_input))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+            .perform(typeText(secret))
+            /**
+             * Must close Soft Keyboard so we click the update button.
+             * */
+            .perform(closeSoftKeyboard())
     }
 
     /**
