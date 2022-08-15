@@ -5,6 +5,7 @@ import app.brucehsieh.inventorymanageeer.common.extension.empty
 import app.brucehsieh.inventorymanageeer.data.NetworkClient
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Callback
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
@@ -18,9 +19,10 @@ import kotlin.coroutines.resumeWithException
 suspend fun <T> suspendRequestCall(
     request: Request,
     transform: (String) -> T,
-    default: T
+    default: T,
+    client: OkHttpClient = NetworkClient.client,
 ): T = suspendCancellableCoroutine { continuation ->
-    NetworkClient.client.newCall(request).enqueue(object : Callback {
+    client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: okhttp3.Call, e: IOException) {
             continuation.resumeWithException(e)
         }

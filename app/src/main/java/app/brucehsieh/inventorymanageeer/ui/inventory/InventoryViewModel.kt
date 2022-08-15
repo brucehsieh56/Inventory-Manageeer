@@ -1,9 +1,12 @@
 package app.brucehsieh.inventorymanageeer.ui.inventory
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
 import app.brucehsieh.inventorymanageeer.common.exception.Failure
 import app.brucehsieh.inventorymanageeer.common.extension.empty
+import app.brucehsieh.inventorymanageeer.data.preferences.WalmartPreferences
+import app.brucehsieh.inventorymanageeer.data.remote.interceptors.AuthenticationInterceptor
 import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.ShopifyApiService
 import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService
 import app.brucehsieh.inventorymanageeer.model.BaseListing
@@ -12,11 +15,13 @@ import app.brucehsieh.inventorymanageeer.model.WalmartListing
 import app.brucehsieh.inventorymanageeer.ui.state.InventoryViewState
 import app.brucehsieh.inventorymanageeer.ui.store.StoreList
 import kotlinx.coroutines.*
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import java.net.SocketTimeoutException
 
 private const val TAG = "InventoryViewModel"
 
-class InventoryViewModel : ViewModel() {
+class InventoryViewModel(application: Application) : AndroidViewModel(application) {
 
     private var updateInventoryJob: Job? = null
     private var getItemsJob: Job? = null
@@ -57,6 +62,17 @@ class InventoryViewModel : ViewModel() {
                 }
             }
         }
+
+    private val walmartPreferences by lazy { WalmartPreferences(application.applicationContext) }
+    private val okHttpClient = OkHttpClient.Builder().apply {
+        val authenticationInterceptor = AuthenticationInterceptor(walmartPreferences)
+        val loggingInterceptor = HttpLoggingInterceptor()
+            .setLevel(HttpLoggingInterceptor.Level.BASIC)
+
+        addInterceptor(authenticationInterceptor)
+        addInterceptor(loggingInterceptor)
+    }.build()
+    private val walmartApiService by lazy { WalmartApiService(okHttpClient) }
 
     /**
      * Update the [_inventoryViewState].
@@ -168,7 +184,7 @@ class InventoryViewModel : ViewModel() {
         getItemsJob?.cancel()
         getItemsJob = viewModelScope.launch {
             try {
-                val walmartItems = WalmartApiService.getItems()
+                val walmartItems = walmartApiService.getItems()
 
                 // Nothing in our Walmart listing
                 if (walmartItems.totalItems == 0) return@launch
@@ -185,7 +201,7 @@ class InventoryViewModel : ViewModel() {
                 // Get inventory
                 _walmartListings.value = _walmartListings.value?.map {
                     async {
-                        val (quantity, _) = WalmartApiService.getInventoryBySku(sku = it.productSku)
+                        val (quantity, _) = walmartApiService.getInventoryBySku(sku = it.productSku)
                         (it as WalmartListing).copy(quantity = quantity.amount)
                     }
                 }?.awaitAll()
@@ -222,7 +238,7 @@ class InventoryViewModel : ViewModel() {
             delay(delayMillis)
 
             try {
-                val newWalmartInventory = WalmartApiService.updateInventoryBySku(sku, newQuantity)
+                val newWalmartInventory = walmartApiService.updateInventoryBySku(sku, newQuantity)
 
                 _walmartListings.value = _walmartListings.value?.map {
                     if (it.productSku == newWalmartInventory.sku) {

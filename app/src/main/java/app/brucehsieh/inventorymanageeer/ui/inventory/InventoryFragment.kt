@@ -11,7 +11,6 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.distinctUntilChanged
 import app.brucehsieh.inventorymanageeer.data.MarketPreferences
 import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.ShopifyApiService
-import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService
 import app.brucehsieh.inventorymanageeer.databinding.InventoryFragmentBinding
 import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog
 import app.brucehsieh.inventorymanageeer.ui.dialog.MarketKeyDialog
@@ -29,7 +28,7 @@ private const val TAG = "InventoryFragment"
  * paused instead of destroyed.
  * */
 class InventoryFragment : Fragment() {
-
+    // TODO: Add menu to update key and secret
     private var _binding: InventoryFragmentBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<InventoryViewModel>()
@@ -94,24 +93,24 @@ class InventoryFragment : Fragment() {
                     marketPreferences.walmartKeyFlow.asLiveData().distinctUntilChanged()
                         .observe(viewLifecycleOwner) { (key, secret) ->
                             if (key.isEmpty() || secret.isEmpty()) {
-
-                                cleanUpAdapter()
-
-                                // Launch dialog for user to enter key and secret
-                                parentFragmentManager.beginTransaction()
-                                    .add(
-                                        MarketKeyDialog.newInstance().apply {
-                                            arguments = Bundle().apply {
-                                                putInt(STORE_KEY_INT, 0)
-                                            }
-                                        },
-                                        null
-                                    )
-                                    .commitAllowingStateLoss()
+                                viewModel.getWalmartItems()
+//                                cleanUpAdapter()
+//
+//                                // Launch dialog for user to enter key and secret
+//                                parentFragmentManager.beginTransaction()
+//                                    .add(
+//                                        MarketKeyDialog.newInstance().apply {
+//                                            arguments = Bundle().apply {
+//                                                putInt(STORE_KEY_INT, 0)
+//                                            }
+//                                        },
+//                                        null
+//                                    )
+//                                    .commitAllowingStateLoss()
                             } else {
                                 // Load key and secret
-                                WalmartApiService.setKey(key = key)
-                                WalmartApiService.setSecret(secret = secret)
+//                                WalmartApiService.setKey(key = key)
+//                                WalmartApiService.setSecret(secret = secret)
 
                                 // Run request
                                 viewModel.getWalmartItems()

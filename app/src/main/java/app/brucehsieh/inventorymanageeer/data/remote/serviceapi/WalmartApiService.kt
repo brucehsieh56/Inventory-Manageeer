@@ -2,14 +2,17 @@ package app.brucehsieh.inventorymanageeer.data.remote.serviceapi
 
 import app.brucehsieh.inventorymanageeer.common.extension.empty
 import app.brucehsieh.inventorymanageeer.common.functional.suspendRequestCall
+import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.ACCEPT_KEY
+import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.ACCEPT_VALUE
+import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.CONTENT_TYPE_KEY
+import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.CONTENT_TYPE_VALUE
 import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.Quantity
 import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartInventory
 import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartItems
-import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartToken
 import com.google.gson.Gson
 import okhttp3.Credentials
-import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
@@ -18,13 +21,19 @@ private const val TAG = "WalmartApiService"
 /**
  * A singleton to run Walmart related requests.
  * */
-object WalmartApiService {
-    private const val BASE_URL = "https://marketplace.walmartapis.com/v3/"
-    private var WALMART_API_KEY = String.empty()
-    private var WALMART_API_SECRET = String.empty()
-
-    private lateinit var token: String
-    private val credential get() = Credentials.basic(WALMART_API_KEY, WALMART_API_SECRET)
+class WalmartApiService(private val client: OkHttpClient) {
+    companion object {
+        const val BASE_URL = "https://marketplace.walmartapis.com/v3/"
+        const val AUTH_ENDPOINT = "token"
+        const val WALMART_SVC_NAME_KEY = "WM_SVC.NAME"
+        const val WALMART_SVC_NAME_VALUE = "Walmart Marketplace"
+        const val WALMART_QOS_KEY = "WM_QOS.CORRELATION_ID"
+        const val WALMART_QOS_VALUE = "b3261d2d-028a-4ef7-8602-633c23200af6"
+        const val WALMART_ACCESS_TOKEN_KEY = "WM_SEC.ACCESS_TOKEN"
+        var WALMART_API_KEY = String.empty()
+        var WALMART_API_SECRET = String.empty()
+        val credential get() = Credentials.basic(WALMART_API_KEY, WALMART_API_SECRET)
+    }
 
     /**
      * Set Walmart API key.
@@ -41,44 +50,6 @@ object WalmartApiService {
     }
 
     /**
-     * Get token authentication.
-     *
-     * @param baseUrl this param is created for unit test purpose.
-     * @return token in [String], which is empty if no token retrieved.
-     * */
-    suspend fun getToken(
-        baseUrl: String = BASE_URL,
-        key: String = WALMART_API_KEY,
-        secret: String = WALMART_API_SECRET
-    ): String {
-
-        val credential = Credentials.basic(key, secret)
-
-        val body = FormBody.Builder()
-            .add("grant_type", "client_credentials")
-            .build()
-
-        val request = Request.Builder()
-            .url("${baseUrl}token")
-            .method("POST", body)
-            .addHeader("grant_type", "client_credentials")
-            .addHeader("Content-Type", "application/x-www-form-urlencoded")
-            .addHeader("Accept", "application/json")
-            .addHeader("WM_SVC.NAME", "Walmart Marketplace")
-            .addHeader("WM_QOS.CORRELATION_ID", "b3261d2d-028a-4ef7-8602-633c23200af6")
-            .addHeader("Authorization", credential)
-            .build()
-
-        return suspendRequestCall(
-            request = request,
-            transform = { jsonString ->
-                Gson().fromJson(jsonString, WalmartToken::class.java).accessToken
-            },
-            default = String.empty()
-        )
-    }
-
-    /**
      * Get items.
      *
      * @return [WalmartItems].
@@ -87,21 +58,13 @@ object WalmartApiService {
 
         if (WALMART_API_KEY.isEmpty() || WALMART_API_SECRET.isEmpty()) return WalmartItems.empty
 
-        token = try {
-            getToken()
-        } catch (t: Throwable) {
-            throw t
-        }
-
         val request = Request.Builder()
             .url("${BASE_URL}items")
             .method("GET", null)
-            .addHeader("Content-Type", "application/json")
-            .addHeader("Accept", "application/json")
-            .addHeader("WM_SVC.NAME", "Walmart Marketplace")
-            .addHeader("WM_QOS.CORRELATION_ID", "b3261d2d-028a-4ef7-8602-633c23200af6")
-            .addHeader("WM_SEC.ACCESS_TOKEN", token)
-            .addHeader("Authorization", credential)
+            .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+            .addHeader(ACCEPT_KEY, ACCEPT_VALUE)
+            .addHeader(WALMART_SVC_NAME_KEY, WALMART_SVC_NAME_VALUE)
+            .addHeader(WALMART_QOS_KEY, WALMART_QOS_VALUE)
             .build()
 
         return suspendRequestCall(
@@ -109,7 +72,8 @@ object WalmartApiService {
             transform = { jsonString ->
                 Gson().fromJson(jsonString, WalmartItems::class.java)
             },
-            default = WalmartItems.empty
+            default = WalmartItems.empty,
+            client = client
         )
     }
 
@@ -120,22 +84,13 @@ object WalmartApiService {
      * @return [WalmartInventory]
      * */
     suspend fun getInventoryBySku(sku: String): WalmartInventory {
-
-//        val token = try {
-//            getToken()
-//        } catch (t: Throwable) {
-//            throw t
-//        }
-
         val request = Request.Builder()
             .url("${BASE_URL}inventory/?sku=$sku")
             .method("GET", null)
-            .addHeader("Content-Type", "application/json")
-            .addHeader("Accept", "application/json")
-            .addHeader("WM_SVC.NAME", "Walmart Marketplace")
-            .addHeader("WM_QOS.CORRELATION_ID", "b3261d2d-028a-4ef7-8602-633c23200af6")
-            .addHeader("WM_SEC.ACCESS_TOKEN", token)
-            .addHeader("Authorization", credential)
+            .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+            .addHeader(ACCEPT_KEY, ACCEPT_VALUE)
+            .addHeader(WALMART_SVC_NAME_KEY, WALMART_SVC_NAME_VALUE)
+            .addHeader(WALMART_QOS_KEY, WALMART_QOS_VALUE)
             .build()
 
         return suspendRequestCall(
@@ -143,7 +98,8 @@ object WalmartApiService {
             transform = { jsonString ->
                 Gson().fromJson(jsonString, WalmartInventory::class.java)
             },
-            default = WalmartInventory.empty
+            default = WalmartInventory.empty,
+            client = client
         )
     }
 
@@ -154,13 +110,6 @@ object WalmartApiService {
      * @return Updated [WalmartInventory]
      * */
     suspend fun updateInventoryBySku(sku: String, newQuantity: Int): WalmartInventory {
-
-        val token = try {
-            getToken()
-        } catch (t: Throwable) {
-            throw t
-        }
-
         val newWalmartInventory = WalmartInventory(
             quantity = Quantity(amount = newQuantity),
             sku = sku
@@ -172,12 +121,10 @@ object WalmartApiService {
         val request = Request.Builder()
             .url("${BASE_URL}inventory/?sku=$sku")
             .method("PUT", body)
-            .addHeader("Content-Type", "application/json")
-            .addHeader("Accept", "application/json")
-            .addHeader("WM_SVC.NAME", "Walmart Marketplace")
-            .addHeader("WM_QOS.CORRELATION_ID", "b3261d2d-028a-4ef7-8602-633c23200af6")
-            .addHeader("WM_SEC.ACCESS_TOKEN", token)
-            .addHeader("Authorization", credential)
+            .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+            .addHeader(ACCEPT_KEY, ACCEPT_VALUE)
+            .addHeader(WALMART_SVC_NAME_KEY, WALMART_SVC_NAME_VALUE)
+            .addHeader(WALMART_QOS_KEY, WALMART_QOS_VALUE)
             .build()
 
         return suspendRequestCall(
@@ -185,7 +132,8 @@ object WalmartApiService {
             transform = { jsonString ->
                 Gson().fromJson(jsonString, WalmartInventory::class.java)
             },
-            default = WalmartInventory.empty
+            default = WalmartInventory.empty,
+            client = client
         )
     }
 }
