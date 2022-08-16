@@ -1,29 +1,29 @@
-package app.brucehsieh.inventorymanageeer.data.remote.interceptors
+package app.brucehsieh.inventorymanageeer.common.data.remote.interceptors
 
-import android.util.Log
-import app.brucehsieh.inventorymanageeer.data.preferences.WalmartPreferences
-import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.ACCEPT_KEY
-import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.ACCEPT_VALUE
-import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.AUTHORIZATION_KEY
-import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.CONTENT_TYPE_KEY
-import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.CONTENT_TYPE_VALUE
-import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.GRANT_TYPE_KEY
-import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.GRANT_TYPE_VALUE
-import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartToken
-import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService
-import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService.Companion.AUTH_ENDPOINT
-import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService.Companion.WALMART_ACCESS_TOKEN_KEY
-import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService.Companion.WALMART_QOS_KEY
-import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService.Companion.WALMART_QOS_VALUE
-import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService.Companion.WALMART_SVC_NAME_KEY
-import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService.Companion.WALMART_SVC_NAME_VALUE
+import app.brucehsieh.inventorymanageeer.common.data.preferences.Preferences
+import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.ACCEPT_KEY
+import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.ACCEPT_VALUE
+import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.AUTHORIZATION_KEY
+import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.CONTENT_TYPE_KEY
+import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.CONTENT_TYPE_VALUE
+import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.GRANT_TYPE_KEY
+import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.GRANT_TYPE_VALUE
+import app.brucehsieh.inventorymanageeer.common.data.remote.dto.walmart.WalmartToken
+import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.WalmartApiService
+import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.WalmartApiService.Companion.AUTH_ENDPOINT
+import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.WalmartApiService.Companion.WALMART_ACCESS_TOKEN_KEY
+import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.WalmartApiService.Companion.WALMART_QOS_KEY
+import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.WalmartApiService.Companion.WALMART_QOS_VALUE
+import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.WalmartApiService.Companion.WALMART_SVC_NAME_KEY
+import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.WalmartApiService.Companion.WALMART_SVC_NAME_VALUE
 import com.google.gson.Gson
-import okhttp3.*
+import okhttp3.FormBody
+import okhttp3.Interceptor
+import okhttp3.Request
+import okhttp3.Response
 import org.threeten.bp.Instant
 
-private const val TAG = "AuthenticationIntercept"
-
-class AuthenticationInterceptor(private val preferences: WalmartPreferences) : Interceptor {
+class AuthenticationInterceptor(private val preferences: Preferences) : Interceptor {
 
     companion object {
         const val UNAUTHORIZED = 401
@@ -38,19 +38,15 @@ class AuthenticationInterceptor(private val preferences: WalmartPreferences) : I
         val interceptedRequest: Request
         if (tokenExpirationTime.isAfter(Instant.now())) {
             // Token is valid
-            Log.d(TAG, "intercept: token is valid")
             interceptedRequest = chain.createAuthenticatedRequest(token)
         } else {
             // Token expired
-            Log.d(TAG, "intercept: token is expired")
             val tokenRefreshResponse = chain.refreshToken()
 
             interceptedRequest = if (tokenRefreshResponse.isSuccessful) {
-//                val jsonString = tokenRefreshResponse.peekBody(2048).string()
                 val jsonString = tokenRefreshResponse.body!!.string()
                 val newToken = mapToToken(jsonString)
                 if (newToken.isValid()) {
-                    Log.d(TAG, "intercept: $newToken")
                     storeNewToken(newToken)
                     chain.createAuthenticatedRequest(newToken.accessToken!!)
                 } else {

@@ -1,14 +1,14 @@
-package app.brucehsieh.inventorymanageeer.data.remote.serviceapi
+package app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi
 
-import app.brucehsieh.inventorymanageeer.common.extension.empty
 import app.brucehsieh.inventorymanageeer.common.functional.suspendRequestCall
-import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.ACCEPT_KEY
-import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.ACCEPT_VALUE
-import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.CONTENT_TYPE_KEY
-import app.brucehsieh.inventorymanageeer.data.remote.ApiParameters.CONTENT_TYPE_VALUE
-import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.Quantity
-import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartInventory
-import app.brucehsieh.inventorymanageeer.data.remote.dto.walmart.WalmartItems
+import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.ACCEPT_KEY
+import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.ACCEPT_VALUE
+import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.CONTENT_TYPE_KEY
+import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.CONTENT_TYPE_VALUE
+import app.brucehsieh.inventorymanageeer.common.data.remote.dto.walmart.Quantity
+import app.brucehsieh.inventorymanageeer.common.data.remote.dto.walmart.WalmartInventory
+import app.brucehsieh.inventorymanageeer.common.data.remote.dto.walmart.WalmartItems
+import app.brucehsieh.inventorymanageeer.common.extension.empty
 import com.google.gson.Gson
 import okhttp3.Credentials
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -25,6 +25,8 @@ class WalmartApiService(private val client: OkHttpClient) {
     companion object {
         const val BASE_URL = "https://marketplace.walmartapis.com/v3/"
         const val AUTH_ENDPOINT = "token"
+        const val ITEMS_ENDPOINT = "items"
+        const val TOKEN_TYPE = "Bearer"
         const val WALMART_SVC_NAME_KEY = "WM_SVC.NAME"
         const val WALMART_SVC_NAME_VALUE = "Walmart Marketplace"
         const val WALMART_QOS_KEY = "WM_QOS.CORRELATION_ID"

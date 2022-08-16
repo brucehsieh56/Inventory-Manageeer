@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.distinctUntilChanged
-import app.brucehsieh.inventorymanageeer.data.MarketPreferences
-import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.ShopifyApiService
+import app.brucehsieh.inventorymanageeer.common.data.MarketPreferences
+import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.ShopifyApiService
 import app.brucehsieh.inventorymanageeer.databinding.InventoryFragmentBinding
 import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog
 import app.brucehsieh.inventorymanageeer.ui.dialog.MarketKeyDialog

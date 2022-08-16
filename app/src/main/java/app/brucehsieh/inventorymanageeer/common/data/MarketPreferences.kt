@@ -1,4 +1,4 @@
-package app.brucehsieh.inventorymanageeer.data
+package app.brucehsieh.inventorymanageeer.common.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore

@@ -1,4 +1,4 @@
-package app.brucehsieh.inventorymanageeer.data.remote.dto.walmart
+package app.brucehsieh.inventorymanageeer.common.data.remote.dto.walmart
 
 /**
  * DTO for items from Walmart Marketplace api.

@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.fragment.app.DialogFragment
 import app.brucehsieh.inventorymanageeer.R
-import app.brucehsieh.inventorymanageeer.data.MarketPreferences
+import app.brucehsieh.inventorymanageeer.common.data.MarketPreferences
 import app.brucehsieh.inventorymanageeer.databinding.KeyInputDialogBinding
 import app.brucehsieh.inventorymanageeer.ui.store.StoreList
 import com.google.android.material.dialog.MaterialAlertDialogBuilder

@@ -1,11 +1,11 @@
-package app.brucehsieh.inventorymanageeer.data.remote.serviceapi
+package app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi
 
-import app.brucehsieh.inventorymanageeer.common.extension.empty
 import app.brucehsieh.inventorymanageeer.common.functional.suspendRequestCall
-import app.brucehsieh.inventorymanageeer.data.remote.dto.shopify.InventoryLevel
-import app.brucehsieh.inventorymanageeer.data.remote.dto.shopify.PostInventoryLevel
-import app.brucehsieh.inventorymanageeer.data.remote.dto.shopify.ShopifyInventoryLevel
-import app.brucehsieh.inventorymanageeer.data.remote.dto.shopify.ShopifyItems
+import app.brucehsieh.inventorymanageeer.common.data.remote.dto.shopify.InventoryLevel
+import app.brucehsieh.inventorymanageeer.common.data.remote.dto.shopify.PostInventoryLevel
+import app.brucehsieh.inventorymanageeer.common.data.remote.dto.shopify.ShopifyInventoryLevel
+import app.brucehsieh.inventorymanageeer.common.data.remote.dto.shopify.ShopifyItems
+import app.brucehsieh.inventorymanageeer.common.extension.empty
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request

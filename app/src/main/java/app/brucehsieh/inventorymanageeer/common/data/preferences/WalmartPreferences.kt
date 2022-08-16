@@ -1,4 +1,4 @@
-package app.brucehsieh.inventorymanageeer.data.preferences
+package app.brucehsieh.inventorymanageeer.common.data.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -7,35 +7,35 @@ import app.brucehsieh.inventorymanageeer.common.extension.empty
 /**
  * Store Walmart related preferences.
  * */
-class WalmartPreferences(context: Context) {
+class WalmartPreferences(context: Context) : Preferences {
 
     private val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
 
-    fun putToken(token: String) {
+    override fun putToken(token: String) {
         edit { putString(KEY_TOKEN, token) }
     }
 
-    fun putTokenExpirationTime(time: Long) {
+    override fun putTokenExpirationTime(time: Long) {
         edit { putLong(KEY_TOKEN_EXPIRATION_TIME, time) }
     }
 
-    fun putTokenType(tokenType: String) {
+    override fun putTokenType(tokenType: String) {
         edit { putString(KEY_TOKEN_TYPE, tokenType) }
     }
 
-    fun getToken(): String {
+    override fun getToken(): String {
         return preferences.getString(KEY_TOKEN, String.empty()).orEmpty()
     }
 
-    fun getTokenExpirationTime(): Long {
+    override fun getTokenExpirationTime(): Long {
         return preferences.getLong(KEY_TOKEN_EXPIRATION_TIME, -1)
     }
 
-    fun getTokenType(): String {
+    override fun getTokenType(): String {
         return preferences.getString(KEY_TOKEN_TYPE, String.empty()).orEmpty()
     }
 
-    fun deleteTokenInfo() {
+    override fun deleteTokenInfo() {
         edit {
             remove(KEY_TOKEN)
             remove(KEY_TOKEN_EXPIRATION_TIME)

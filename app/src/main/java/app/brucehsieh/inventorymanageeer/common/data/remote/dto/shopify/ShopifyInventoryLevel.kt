@@ -1,4 +1,4 @@
-package app.brucehsieh.inventorymanageeer.data.remote.dto.shopify
+package app.brucehsieh.inventorymanageeer.common.data.remote.dto.shopify
 
 import app.brucehsieh.inventorymanageeer.common.extension.empty
 import com.google.gson.annotations.SerializedName

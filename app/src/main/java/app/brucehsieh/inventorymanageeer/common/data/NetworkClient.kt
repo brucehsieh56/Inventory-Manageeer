@@ -1,4 +1,4 @@
-package app.brucehsieh.inventorymanageeer.data
+package app.brucehsieh.inventorymanageeer.common.data
 
 import app.brucehsieh.inventorymanageeer.BuildConfig
 import okhttp3.OkHttpClient

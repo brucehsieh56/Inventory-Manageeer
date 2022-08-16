@@ -1,4 +1,4 @@
-package app.brucehsieh.inventorymanageeer.data.remote
+package app.brucehsieh.inventorymanageeer.common.data.remote
 
 object ApiParameters {
     const val GRANT_TYPE_KEY = "grant_type"

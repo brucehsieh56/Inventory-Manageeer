@@ -5,10 +5,10 @@ import android.util.Log
 import androidx.lifecycle.*
 import app.brucehsieh.inventorymanageeer.common.exception.Failure
 import app.brucehsieh.inventorymanageeer.common.extension.empty
-import app.brucehsieh.inventorymanageeer.data.preferences.WalmartPreferences
-import app.brucehsieh.inventorymanageeer.data.remote.interceptors.AuthenticationInterceptor
-import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.ShopifyApiService
-import app.brucehsieh.inventorymanageeer.data.remote.serviceapi.WalmartApiService
+import app.brucehsieh.inventorymanageeer.common.data.preferences.WalmartPreferences
+import app.brucehsieh.inventorymanageeer.common.data.remote.interceptors.AuthenticationInterceptor
+import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.ShopifyApiService
+import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.WalmartApiService
 import app.brucehsieh.inventorymanageeer.model.BaseListing
 import app.brucehsieh.inventorymanageeer.model.ShopifyListing
 import app.brucehsieh.inventorymanageeer.model.WalmartListing

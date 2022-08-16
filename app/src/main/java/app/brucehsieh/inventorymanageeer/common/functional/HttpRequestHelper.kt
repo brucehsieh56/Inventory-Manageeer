@@ -2,7 +2,7 @@ package app.brucehsieh.inventorymanageeer.common.functional
 
 import app.brucehsieh.inventorymanageeer.common.exception.Failure
 import app.brucehsieh.inventorymanageeer.common.extension.empty
-import app.brucehsieh.inventorymanageeer.data.NetworkClient
+import app.brucehsieh.inventorymanageeer.common.data.NetworkClient
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Callback
 import okhttp3.OkHttpClient

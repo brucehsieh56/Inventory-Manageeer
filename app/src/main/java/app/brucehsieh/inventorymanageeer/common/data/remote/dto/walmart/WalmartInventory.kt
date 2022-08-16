@@ -1,4 +1,4 @@
-package app.brucehsieh.inventorymanageeer.data.remote.dto.walmart
+package app.brucehsieh.inventorymanageeer.common.data.remote.dto.walmart
 
 import app.brucehsieh.inventorymanageeer.common.extension.empty
 
