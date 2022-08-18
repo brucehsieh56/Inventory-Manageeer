@@ -7,8 +7,10 @@ import app.brucehsieh.inventorymanageeer.common.exception.Failure
 import app.brucehsieh.inventorymanageeer.common.extension.empty
 import app.brucehsieh.inventorymanageeer.common.data.preferences.WalmartPreferences
 import app.brucehsieh.inventorymanageeer.common.data.remote.interceptors.AuthenticationInterceptor
+import app.brucehsieh.inventorymanageeer.common.data.remote.interceptors.NetworkStatusInterceptor
 import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.ShopifyApiService
 import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.WalmartApiService
+import app.brucehsieh.inventorymanageeer.common.utils.NetworkHelper
 import app.brucehsieh.inventorymanageeer.model.BaseListing
 import app.brucehsieh.inventorymanageeer.model.ShopifyListing
 import app.brucehsieh.inventorymanageeer.model.WalmartListing
@@ -63,12 +65,15 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
             }
         }
 
+    private val networkHelper by lazy { NetworkHelper(application.applicationContext) }
     private val walmartPreferences by lazy { WalmartPreferences(application.applicationContext) }
     private val okHttpClient = OkHttpClient.Builder().apply {
+        val networkStatusInterceptor = NetworkStatusInterceptor(networkHelper)
         val authenticationInterceptor = AuthenticationInterceptor(walmartPreferences)
         val loggingInterceptor = HttpLoggingInterceptor()
             .setLevel(HttpLoggingInterceptor.Level.BASIC)
 
+        addInterceptor(networkStatusInterceptor)
         addInterceptor(authenticationInterceptor)
         addInterceptor(loggingInterceptor)
     }.build()
