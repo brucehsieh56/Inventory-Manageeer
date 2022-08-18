@@ -1,33 +1,37 @@
-package app.brucehsieh.inventorymanageeer.ui.inventory
+package app.brucehsieh.inventorymanageeer.storefront.presentation
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import app.brucehsieh.inventorymanageeer.R
 import app.brucehsieh.inventorymanageeer.databinding.InventoryListItemBinding
-import app.brucehsieh.inventorymanageeer.model.BaseListing
+import app.brucehsieh.inventorymanageeer.common.domain.model.BaseListing
 import coil.load
 
-private const val TAG = "InventoryAdapter"
-
 /**
- * [ListAdapter] to display store listings.
+ * [ListAdapter] to display store listings and their inventory.
  * */
 class InventoryAdapter(
-    private val onItemClick: (BaseListing) -> Unit
-) : RecyclerView.Adapter<InventoryAdapter.ViewHolder>() {
+    private val onItemClick: (BaseListing) -> Unit,
+) : ListAdapter<BaseListing, InventoryAdapter.ViewHolder>(DiffComparator) {
 
-    var data: List<BaseListing> = emptyList()
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val binding = InventoryListItemBinding.inflate(layoutInflater, parent, false)
+        return ViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val currentItem = getItem(position)
+        holder.bind(currentItem, onItemClick)
+    }
 
     class ViewHolder(
-        private val binding: InventoryListItemBinding
+        private val binding: InventoryListItemBinding,
     ) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(
-            currentItem: BaseListing,
-            onInventoryClick: (BaseListing) -> Unit
-        ) {
+        fun bind(currentItem: BaseListing, onItemClick: (BaseListing) -> Unit) {
             binding.apply {
                 productName.text = currentItem.productName
                 productSku.text = currentItem.productSku
@@ -39,9 +43,7 @@ class InventoryAdapter(
                     isFocusable = currentItem.quantity != -1
                     isClickable = currentItem.quantity != -1
                     setText(currentItem.quantity.toString())
-                    setOnClickListener {
-                        onInventoryClick(currentItem)
-                    }
+                    setOnClickListener { onItemClick(currentItem) }
                 }
 
                 if (currentItem.imageUrl == null) {
@@ -58,17 +60,15 @@ class InventoryAdapter(
         }
     }
 
-    override fun getItemCount(): Int = data.size
+    companion object {
+        val DiffComparator = object : DiffUtil.ItemCallback<BaseListing>() {
+            override fun areItemsTheSame(oldItem: BaseListing, newItem: BaseListing): Boolean {
+                return oldItem.quantity == newItem.quantity
+            }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        return ViewHolder(InventoryListItemBinding.inflate(layoutInflater, parent, false))
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (data.isNotEmpty()) {
-            val currentItem = data[position]
-            holder.bind(currentItem, onItemClick)
+            override fun areContentsTheSame(oldItem: BaseListing, newItem: BaseListing): Boolean {
+                return oldItem == newItem
+            }
         }
     }
 }

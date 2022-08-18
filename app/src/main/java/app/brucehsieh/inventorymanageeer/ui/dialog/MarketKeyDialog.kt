@@ -8,7 +8,7 @@ import androidx.fragment.app.DialogFragment
 import app.brucehsieh.inventorymanageeer.R
 import app.brucehsieh.inventorymanageeer.common.data.MarketPreferences
 import app.brucehsieh.inventorymanageeer.databinding.KeyInputDialogBinding
-import app.brucehsieh.inventorymanageeer.ui.store.StoreList
+import app.brucehsieh.inventorymanageeer.storefront.domain.StoreList
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -83,6 +83,7 @@ class MarketKeyDialog : DialogFragment() {
                             currentMarketplace.name
                         )
                     }
+                    else -> Unit
                 }
             }
         }
@@ -116,6 +117,7 @@ class MarketKeyDialog : DialogFragment() {
                                 context = requireContext()
                             )
                         }
+                        else -> Unit
                     }
 
                     dismissAllowingStateLoss()

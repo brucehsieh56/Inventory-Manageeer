@@ -1,4 +1,4 @@
-package app.brucehsieh.inventorymanageeer.model
+package app.brucehsieh.inventorymanageeer.common.domain.model
 
 /**
  * A data class holds Walmart listing data that is ready for UI.

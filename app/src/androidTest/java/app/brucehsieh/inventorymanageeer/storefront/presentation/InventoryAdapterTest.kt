@@ -1,6 +1,6 @@
-package app.brucehsieh.inventorymanageeer.ui.inventory
+package app.brucehsieh.inventorymanageeer.storefront.presentation
 
-import app.brucehsieh.inventorymanageeer.model.WalmartListing
+import app.brucehsieh.inventorymanageeer.common.domain.model.WalmartListing
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -34,10 +34,10 @@ class InventoryAdapterTest {
         val dataset = listOf(data1, data2)
 
         // Act
-        inventoryAdapter.data = dataset
+        inventoryAdapter.submitList(dataset)
 
         // Assert
         assertEquals(inventoryAdapter.itemCount, dataset.size)
-        assertEquals(inventoryAdapter.data.first(), data1)
+        assertEquals(inventoryAdapter.currentList.first(), data1)
     }
 }

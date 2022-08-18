@@ -1,4 +1,4 @@
-package app.brucehsieh.inventorymanageeer.ui.store
+package app.brucehsieh.inventorymanageeer.storefront.domain
 
 import app.brucehsieh.inventorymanageeer.R
 

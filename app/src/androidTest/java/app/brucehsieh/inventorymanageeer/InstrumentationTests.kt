@@ -16,7 +16,7 @@ import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import app.brucehsieh.inventorymanageeer.ui.inventory.InventoryAdapter
+import app.brucehsieh.inventorymanageeer.storefront.presentation.InventoryAdapter
 import com.google.android.material.slider.Slider
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
@@ -39,6 +39,7 @@ class InstrumentationTests {
 
     private val walmartKey = "walmartKey"
     private val walmartSecret = "walmartSecret"
+
     @Test
     fun marketKeyDialog_enterKeyAndSecretForWalmart_stayAtTop_listingLoadedCorrectly() {
         // Arrange
@@ -244,7 +245,7 @@ class InstrumentationTests {
         viewInteraction: ViewInteraction,
         viewAssertion: ViewAssertion = matches(isDisplayed()),
         timeoutMillis: Int = 1_0000,
-        attemptTimeoutMillis: Long = 100L
+        attemptTimeoutMillis: Long = 100L,
     ) {
         val maxAttempts = timeoutMillis / attemptTimeoutMillis.toInt()
         var attempts = 0

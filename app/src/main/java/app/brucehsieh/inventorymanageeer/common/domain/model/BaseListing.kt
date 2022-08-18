@@ -1,4 +1,4 @@
-package app.brucehsieh.inventorymanageeer.model
+package app.brucehsieh.inventorymanageeer.common.domain.model
 
 sealed interface BaseListing {
     val productName: String
