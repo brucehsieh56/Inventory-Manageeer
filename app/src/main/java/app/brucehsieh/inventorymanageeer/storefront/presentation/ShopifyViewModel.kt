@@ -1,18 +1,19 @@
 package app.brucehsieh.inventorymanageeer.storefront.presentation
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.ShopifyApiService
 import app.brucehsieh.inventorymanageeer.common.extension.empty
 import app.brucehsieh.inventorymanageeer.common.domain.model.ShopifyListing
 import app.brucehsieh.inventorymanageeer.common.presentation.OneTimeEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ShopifyViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class ShopifyViewModel @Inject constructor(
+    private val shopifyApiService: ShopifyApiService,
+) : ViewModel() {
 
     private val _uiState = MutableLiveData(InventoryUiState())
     val uiState: LiveData<InventoryUiState> get() = _uiState
@@ -22,7 +23,7 @@ class ShopifyViewModel(application: Application) : AndroidViewModel(application)
     fun onListingLoad() {
         viewModelScope.launch {
             try {
-                val shopifyItems = ShopifyApiService.getItems()
+                val shopifyItems = shopifyApiService.getItems()
 
                 // Nothing exists in our store listing
                 if (shopifyItems.products.isEmpty()) return@launch
@@ -71,11 +72,11 @@ class ShopifyViewModel(application: Application) : AndroidViewModel(application)
         updateInventoryJob?.cancel()
         updateInventoryJob = viewModelScope.launch {
             try {
-                val shopifyInventoryLevel = ShopifyApiService.getSingleInventory(inventoryItemId)
+                val shopifyInventoryLevel = shopifyApiService.getSingleInventory(inventoryItemId)
 
                 val inventoryLevel = shopifyInventoryLevel.inventory_levels.first()
 
-                val newInventoryLevel = ShopifyApiService.updateSingleInventory(
+                val newInventoryLevel = shopifyApiService.updateSingleInventory(
                     inventoryItemId = inventoryItemId,
                     locationId = inventoryLevel.locationId,
                     newQuantity = newQuantity

@@ -5,17 +5,23 @@ import app.brucehsieh.inventorymanageeer.common.data.remote.dto.shopify.Inventor
 import app.brucehsieh.inventorymanageeer.common.data.remote.dto.shopify.PostInventoryLevel
 import app.brucehsieh.inventorymanageeer.common.data.remote.dto.shopify.ShopifyInventoryLevel
 import app.brucehsieh.inventorymanageeer.common.data.remote.dto.shopify.ShopifyItems
+import app.brucehsieh.inventorymanageeer.common.di.HttpClientShopify
 import app.brucehsieh.inventorymanageeer.common.extension.empty
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
- * A singleton to run Shopify related requests.
+ * A singleton to run Shopify related HTTP requests.
  * */
-object ShopifyApiService {
-
+@Singleton
+class ShopifyApiService @Inject constructor(
+    @HttpClientShopify private val okHttpClient: OkHttpClient,
+) {
     private var SHOPIFY_API_KEY = String.empty()
     private var SHOPIFY_API_SECRET = String.empty()
     private var STORE_NAME = String.empty()
@@ -61,7 +67,8 @@ object ShopifyApiService {
             transform = { jsonString ->
                 Gson().fromJson(jsonString, ShopifyItems::class.java)
             },
-            default = ShopifyItems.empty
+            default = ShopifyItems.empty,
+            client = okHttpClient
         )
     }
 
@@ -86,7 +93,8 @@ object ShopifyApiService {
             transform = { jsonString ->
                 Gson().fromJson(jsonString, ShopifyInventoryLevel::class.java)
             },
-            default = ShopifyInventoryLevel.empty
+            default = ShopifyInventoryLevel.empty,
+            client = okHttpClient
         )
     }
 
@@ -98,7 +106,7 @@ object ShopifyApiService {
     suspend fun updateSingleInventory(
         inventoryItemId: Long,
         locationId: Long,
-        newQuantity: Int
+        newQuantity: Int,
     ): PostInventoryLevel {
         val version = "2022-04"
         val resource = "inventory_levels/set"
@@ -124,7 +132,8 @@ object ShopifyApiService {
             transform = { jsonString ->
                 Gson().fromJson(jsonString, PostInventoryLevel::class.java)
             },
-            default = PostInventoryLevel.empty
+            default = PostInventoryLevel.empty,
+            client = okHttpClient
         )
     }
 }

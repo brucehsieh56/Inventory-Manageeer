@@ -2,7 +2,6 @@ package app.brucehsieh.inventorymanageeer.common.functional
 
 import app.brucehsieh.inventorymanageeer.common.exception.Failure
 import app.brucehsieh.inventorymanageeer.common.extension.empty
-import app.brucehsieh.inventorymanageeer.common.data.NetworkClient
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -20,7 +19,7 @@ suspend fun <T> suspendRequestCall(
     request: Request,
     transform: (String) -> T,
     default: T,
-    client: OkHttpClient = NetworkClient.client,
+    client: OkHttpClient,
 ): T = suspendCancellableCoroutine { continuation ->
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: okhttp3.Call, e: IOException) {

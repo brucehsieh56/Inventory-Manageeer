@@ -11,12 +11,14 @@ import app.brucehsieh.inventorymanageeer.storefront.domain.StoreList
 import app.brucehsieh.inventorymanageeer.storefront.presentation.ShopifyInventoryFragment
 import app.brucehsieh.inventorymanageeer.storefront.presentation.WalmartInventoryFragment
 import com.google.android.material.tabs.TabLayout
+import dagger.hilt.android.AndroidEntryPoint
 
 private const val KEY_SELECTED_INDEX = "KEY_SELECTED_INDEX"
 
 /**
  * Fragment to handle tab layout and display sub fragment.
  * */
+@AndroidEntryPoint
 class TabFragment : Fragment() {
 
     private var _binding: FragmentTabBinding? = null

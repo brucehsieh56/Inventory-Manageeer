@@ -8,6 +8,7 @@ import app.brucehsieh.inventorymanageeer.common.data.remote.ApiParameters.CONTEN
 import app.brucehsieh.inventorymanageeer.common.data.remote.dto.walmart.Quantity
 import app.brucehsieh.inventorymanageeer.common.data.remote.dto.walmart.WalmartInventory
 import app.brucehsieh.inventorymanageeer.common.data.remote.dto.walmart.WalmartItems
+import app.brucehsieh.inventorymanageeer.common.di.HttpClientWalmart
 import app.brucehsieh.inventorymanageeer.common.extension.empty
 import com.google.gson.Gson
 import okhttp3.Credentials
@@ -15,13 +16,16 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-
-private const val TAG = "WalmartApiService"
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
- * A singleton to run Walmart related requests.
+ * A singleton to run Walmart related HTTP requests.
  * */
-class WalmartApiService(private val client: OkHttpClient) {
+@Singleton
+class WalmartApiService @Inject constructor(
+    @HttpClientWalmart private val okHttpClient: OkHttpClient,
+) {
     companion object {
         const val BASE_URL = "https://marketplace.walmartapis.com/v3/"
         const val AUTH_ENDPOINT = "token"
@@ -75,7 +79,7 @@ class WalmartApiService(private val client: OkHttpClient) {
                 Gson().fromJson(jsonString, WalmartItems::class.java)
             },
             default = WalmartItems.empty,
-            client = client
+            client = okHttpClient
         )
     }
 
@@ -101,7 +105,7 @@ class WalmartApiService(private val client: OkHttpClient) {
                 Gson().fromJson(jsonString, WalmartInventory::class.java)
             },
             default = WalmartInventory.empty,
-            client = client
+            client = okHttpClient
         )
     }
 
@@ -135,7 +139,7 @@ class WalmartApiService(private val client: OkHttpClient) {
                 Gson().fromJson(jsonString, WalmartInventory::class.java)
             },
             default = WalmartInventory.empty,
-            client = client
+            client = okHttpClient
         )
     }
 }

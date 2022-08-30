@@ -9,7 +9,9 @@ import androidx.fragment.app.viewModels
 import app.brucehsieh.inventorymanageeer.common.presentation.OneTimeEvent
 import app.brucehsieh.inventorymanageeer.databinding.FragmentInventoryBinding
 import app.brucehsieh.inventorymanageeer.storefront.presentation.TabFragment.Companion.STORE_INDEX
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ShopifyInventoryFragment : Fragment() {
 
     private var _binding: FragmentInventoryBinding? = null
