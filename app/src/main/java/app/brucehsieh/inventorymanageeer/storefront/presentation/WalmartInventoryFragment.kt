@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import app.brucehsieh.inventorymanageeer.common.presentation.OneTimeEvent
 import app.brucehsieh.inventorymanageeer.databinding.FragmentInventoryBinding
 import app.brucehsieh.inventorymanageeer.storefront.presentation.TabFragment.Companion.STORE_INDEX
 
@@ -48,11 +49,17 @@ class WalmartInventoryFragment : Fragment() {
 
         viewModel.uiState.observe(viewLifecycleOwner) {
             inventoryAdapter.submitList(it.listings)
+            handleFailure(it.error)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun handleFailure(error: OneTimeEvent<Throwable>?) {
+        val unHandled = error?.getContentIfNotHandled() ?: return
+        unHandled.printStackTrace()
     }
 }

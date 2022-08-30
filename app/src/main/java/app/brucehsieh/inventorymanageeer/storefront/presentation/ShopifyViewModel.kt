@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.ShopifyApiService
 import app.brucehsieh.inventorymanageeer.common.extension.empty
 import app.brucehsieh.inventorymanageeer.common.domain.model.ShopifyListing
+import app.brucehsieh.inventorymanageeer.common.presentation.OneTimeEvent
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -58,7 +59,7 @@ class ShopifyViewModel(application: Application) : AndroidViewModel(application)
                 _uiState.value = uiState.value?.copy(listings = shopifyListings)
             } catch (t: Throwable) {
                 t.printStackTrace()
-                _uiState.value = uiState.value?.copy(error = t)
+                _uiState.value = uiState.value?.copy(error = OneTimeEvent(t))
             }
         }
     }
@@ -91,7 +92,7 @@ class ShopifyViewModel(application: Application) : AndroidViewModel(application)
                 _uiState.value = uiState.value?.copy(listings = listing)
             } catch (t: Throwable) {
                 t.printStackTrace()
-                _uiState.value = uiState.value?.copy(error = t)
+                _uiState.value = uiState.value?.copy(error = OneTimeEvent(t))
             }
         }
     }

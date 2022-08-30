@@ -8,9 +8,11 @@ import androidx.lifecycle.viewModelScope
 import app.brucehsieh.inventorymanageeer.common.data.preferences.WalmartPreferences
 import app.brucehsieh.inventorymanageeer.common.data.remote.interceptors.AuthenticationInterceptor
 import app.brucehsieh.inventorymanageeer.common.data.remote.interceptors.NetworkStatusInterceptor
+import app.brucehsieh.inventorymanageeer.common.data.remote.interceptors.SocketTimeoutInterceptor
 import app.brucehsieh.inventorymanageeer.common.data.remote.serviceapi.WalmartApiService
 import app.brucehsieh.inventorymanageeer.common.utils.NetworkHelper
 import app.brucehsieh.inventorymanageeer.common.domain.model.WalmartListing
+import app.brucehsieh.inventorymanageeer.common.presentation.OneTimeEvent
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -25,10 +27,12 @@ class WalmartViewModel(application: Application) : AndroidViewModel(application)
     private val okHttpClient = OkHttpClient.Builder().apply {
         val networkStatusInterceptor = NetworkStatusInterceptor(networkHelper)
         val authenticationInterceptor = AuthenticationInterceptor(walmartPreferences)
+        val socketTimeoutInterceptor = SocketTimeoutInterceptor()
         val loggingInterceptor = HttpLoggingInterceptor()
             .setLevel(HttpLoggingInterceptor.Level.BASIC)
 
         addInterceptor(networkStatusInterceptor)
+        addInterceptor(socketTimeoutInterceptor)
         addInterceptor(authenticationInterceptor)
         addInterceptor(loggingInterceptor)
     }.build()
@@ -63,7 +67,7 @@ class WalmartViewModel(application: Application) : AndroidViewModel(application)
                 _uiState.value = uiState.value?.copy(listings = walmartListings)
             } catch (t: Throwable) {
                 t.printStackTrace()
-                _uiState.value = uiState.value?.copy(error = t)
+                _uiState.value = uiState.value?.copy(error = OneTimeEvent(t))
             }
         }
     }
@@ -91,7 +95,7 @@ class WalmartViewModel(application: Application) : AndroidViewModel(application)
                 _uiState.value = uiState.value?.copy(listings = updatedListings)
             } catch (t: Throwable) {
                 t.printStackTrace()
-                _uiState.value = uiState.value?.copy(error = t)
+                _uiState.value = uiState.value?.copy(error = OneTimeEvent(t))
             }
         }
     }
