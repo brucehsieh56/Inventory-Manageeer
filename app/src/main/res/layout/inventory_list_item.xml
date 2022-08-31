@@ -18,7 +18,7 @@
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/product_name"
+        android:id="@+id/text_product_name"
         style="@style/TextAppearance.Material3.TitleSmall"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -54,18 +54,18 @@
         android:textSize="22sp"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="@+id/product_price"
-        app:layout_constraintStart_toEndOf="@+id/product_name"
+        app:layout_constraintStart_toEndOf="@+id/text_product_name"
         app:layout_constraintStart_toStartOf="@+id/product_price"
         app:layout_constraintTop_toBottomOf="@+id/product_price" />
 
     <TextView
-        android:id="@+id/product_sku"
+        android:id="@+id/text_product_sku"
         style="@style/TextAppearance.Material3.BodySmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        app:layout_constraintStart_toStartOf="@+id/product_name"
-        app:layout_constraintTop_toBottomOf="@+id/product_name"
+        app:layout_constraintStart_toStartOf="@+id/text_product_name"
+        app:layout_constraintTop_toBottomOf="@+id/text_product_name"
         tools:text="SKU-123-4567" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

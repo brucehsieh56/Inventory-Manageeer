@@ -55,13 +55,9 @@ class WalmartViewModel @Inject constructor(
     /**
      * Update inventory.
      * */
-    fun onInventoryUpdateBySku(sku: String, newQuantity: Int, delayMillis: Long = 100L) {
+    fun onInventoryUpdateBySku(sku: String, newQuantity: Int) {
         updateInventoryJob?.cancel()
         updateInventoryJob = viewModelScope.launch {
-
-            // Avoid firing too many requests in a short period
-            delay(delayMillis)
-
             try {
                 val newWalmartInventory = walmartApiService.updateInventoryBySku(sku, newQuantity)
 

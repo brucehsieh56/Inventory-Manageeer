@@ -43,7 +43,7 @@ class InstrumentationTests {
     @Test
     fun marketKeyDialog_enterKeyAndSecretForWalmart_stayAtTop_listingLoadedCorrectly() {
         // Arrange
-        val resourceId = R.id.product_sku
+        val resourceId = R.id.text_product_sku
         val productSku = "2Y-0GQX-Z9Q0"
 
         // Act
@@ -64,7 +64,7 @@ class InstrumentationTests {
     @Test
     fun recyclerView_scrollToBottom_listingsLoadedCorrectly() {
         // Arrange
-        val resourceId = R.id.product_sku
+        val resourceId = R.id.text_product_sku
         val firstProductSku = "2Y-0GQX-Z9Q0"
         val lastProductSku = "OG015"
 

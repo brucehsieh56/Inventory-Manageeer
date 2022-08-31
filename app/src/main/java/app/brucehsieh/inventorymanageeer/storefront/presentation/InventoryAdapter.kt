@@ -33,8 +33,8 @@ class InventoryAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(currentItem: BaseListing, onItemClick: (BaseListing) -> Unit) {
             binding.apply {
-                productName.text = currentItem.productName
-                productSku.text = currentItem.productSku
+                textProductName.text = currentItem.productName
+                textProductSku.text = currentItem.productSku
                 productPrice.text =
                     itemView.context.getString(R.string.text_price, currentItem.price)
 

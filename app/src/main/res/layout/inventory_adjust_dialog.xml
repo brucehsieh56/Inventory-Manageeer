@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/product_name"
+        android:id="@+id/text_product_name"
         style="@style/TextAppearance.Material3.TitleMedium"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -31,13 +31,13 @@
         tools:text="Live Jewel Orchid" />
 
     <TextView
-        android:id="@+id/product_sku"
+        android:id="@+id/text_product_sku"
         style="@style/TextAppearance.Material3.BodySmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="@+id/product_name"
-        app:layout_constraintTop_toBottomOf="@+id/product_name"
+        app:layout_constraintStart_toStartOf="@+id/text_product_name"
+        app:layout_constraintTop_toBottomOf="@+id/text_product_name"
         tools:text="SKU-123-4567" />
 
     <EditText
@@ -51,7 +51,7 @@
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="@+id/quantity_slider"
         app:layout_constraintStart_toStartOf="@+id/quantity_slider"
-        app:layout_constraintTop_toBottomOf="@+id/product_sku"
+        app:layout_constraintTop_toBottomOf="@+id/text_product_sku"
         tools:text="30" />
 
     <com.google.android.material.slider.Slider

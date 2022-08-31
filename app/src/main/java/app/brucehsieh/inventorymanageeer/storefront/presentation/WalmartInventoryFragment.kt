@@ -4,11 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import app.brucehsieh.inventorymanageeer.common.domain.model.BaseListing
 import app.brucehsieh.inventorymanageeer.common.presentation.OneTimeEvent
 import app.brucehsieh.inventorymanageeer.databinding.FragmentInventoryBinding
 import app.brucehsieh.inventorymanageeer.storefront.presentation.TabFragment.Companion.STORE_INDEX
+import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog
+import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog.Companion.TO_DIALOG_PRODUCT_NAME_KEY
+import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog.Companion.TO_DIALOG_QUANTITY_KEY
+import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog.Companion.TO_DIALOG_SKU_KEY
+import app.brucehsieh.inventorymanageeer.ui.dialog.InventoryAdjustDialog.Companion.TO_FRAGMENT_QUANTITY_KEY
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -35,6 +43,15 @@ class WalmartInventoryFragment : Fragment() {
             tabPosition = this.getInt(STORE_INDEX)
         }
 
+        /**
+         * Listen to [InventoryAdjustDialog] for inventory update
+         * */
+        setFragmentResultListener(TO_FRAGMENT_QUANTITY_KEY) { _, bundle ->
+            val newQuantity = bundle.getInt(TO_FRAGMENT_QUANTITY_KEY)
+            val productSku = bundle.getString(InventoryAdjustDialog.TO_FRAGMENT_SKU_KEY)!!
+            viewModel.onInventoryUpdateBySku(sku = productSku, newQuantity = newQuantity)
+        }
+
         return binding.root
     }
 
@@ -42,10 +59,7 @@ class WalmartInventoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel.onListingLoad()
 
-        inventoryAdapter = InventoryAdapter {
-            // Cache current selected
-            // Launch dialog
-        }
+        inventoryAdapter = InventoryAdapter(::launchInventoryDialog)
 
         binding.listingRecyclerView.adapter = inventoryAdapter
 
@@ -63,5 +77,23 @@ class WalmartInventoryFragment : Fragment() {
     private fun handleFailure(error: OneTimeEvent<Throwable>?) {
         val unHandled = error?.getContentIfNotHandled() ?: return
         unHandled.printStackTrace()
+    }
+
+    /**
+     * Launch [InventoryAdjustDialog] for inventory adjust.
+     * */
+    private fun launchInventoryDialog(listing: BaseListing) {
+        parentFragmentManager.beginTransaction()
+            .add(
+                InventoryAdjustDialog().apply {
+                    arguments = bundleOf(
+                        TO_DIALOG_QUANTITY_KEY to listing.quantity,
+                        TO_DIALOG_SKU_KEY to listing.productSku,
+                        TO_DIALOG_PRODUCT_NAME_KEY to listing.productName
+                    )
+                },
+                null
+            )
+            .commitAllowingStateLoss()
     }
 }
