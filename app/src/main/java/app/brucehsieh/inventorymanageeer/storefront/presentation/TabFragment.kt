@@ -8,8 +8,6 @@ import androidx.fragment.app.Fragment
 import app.brucehsieh.inventorymanageeer.R
 import app.brucehsieh.inventorymanageeer.databinding.FragmentTabBinding
 import app.brucehsieh.inventorymanageeer.storefront.domain.StoreList
-import app.brucehsieh.inventorymanageeer.storefront.presentation.ShopifyInventoryFragment
-import app.brucehsieh.inventorymanageeer.storefront.presentation.WalmartInventoryFragment
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -97,7 +95,6 @@ class TabFragment : Fragment() {
             }
         }
     }
-
 
     /**
      * Listener to handle tab click events.
