@@ -26,11 +26,11 @@ class NavigationUITest {
         ActivityScenarioRule(MainActivity::class.java)
 
     companion object {
-        private const val WALMART_TITLE = "Walmart"
-        private const val SHOPIFY_TITLE = "Shopify"
+        const val WALMART_TITLE = "Walmart"
+        const val SHOPIFY_TITLE = "Shopify"
 
-        private const val WALMART_TAB_POSITION = 0
-        private const val SHOPIFY_TAB_POSITION = 1
+        const val WALMART_TAB_POSITION = 0
+        const val SHOPIFY_TAB_POSITION = 1
     }
 
     @Test

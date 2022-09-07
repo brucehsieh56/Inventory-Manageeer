@@ -20,9 +20,16 @@ class ShopifyViewModel @Inject constructor(
 
     private var updateInventoryJob: Job? = null
 
+    init {
+        onListingLoad()
+    }
+
     fun onListingLoad() {
         viewModelScope.launch {
             try {
+                // Reset
+                _uiState.value = uiState.value?.copy(listings = emptyList(), isLoading = true)
+
                 val shopifyItems = shopifyApiService.getItems()
 
                 // Nothing exists in our store listing
@@ -61,6 +68,8 @@ class ShopifyViewModel @Inject constructor(
             } catch (t: Throwable) {
                 t.printStackTrace()
                 _uiState.value = uiState.value?.copy(error = OneTimeEvent(t))
+            } finally {
+                _uiState.value = uiState.value?.copy(isLoading = false)
             }
         }
     }

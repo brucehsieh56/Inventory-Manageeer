@@ -13,8 +13,10 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.brucehsieh.inventorymanageeer.TestUtil.clickChildViewWithId
-import app.brucehsieh.inventorymanageeer.TestUtil.itemAtPosition
 import app.brucehsieh.inventorymanageeer.TestUtil.findAndCheckTheView
+import app.brucehsieh.inventorymanageeer.TestUtil.itemAtPosition
+import app.brucehsieh.inventorymanageeer.TestUtil.recyclerViewItemCounts
+import app.brucehsieh.inventorymanageeer.TestUtil.swipeDownOnSwipeRefreshLayout
 import app.brucehsieh.inventorymanageeer.storefront.presentation.InventoryAdapter
 import com.google.android.material.slider.Slider
 import org.hamcrest.CoreMatchers.*
@@ -193,6 +195,59 @@ class InstrumentationTests {
             viewInteraction = onView(withId(R.id.listing_recycler_view)),
             viewAssertion = matches(itemAtPosition(0,
                 hasDescendant(withText(newQuantity.toString()))))
+        )
+    }
+
+    @Test
+    fun swipeRefreshLayout_swipeDown_emptyListingsAndThenLoadListingsSuccessfully() {
+        // - Arrange
+        val itemCountAfterSwipeDown = 0
+        val firstProductSku = "G1-35ZF-RTBU"
+
+        // - Act
+        onView(withId(R.id.swipe_refresh_layout))
+            .perform(swipeDownOnSwipeRefreshLayout(swipeDown()))
+
+        // - Assert
+        // RecyclerView is empty right after swipe down the SwipeRefreshLayout
+        onView(withId(R.id.listing_recycler_view))
+            .check(matches(recyclerViewItemCounts(itemCountAfterSwipeDown)))
+
+        // RecyclerView will be populated later
+        findAndCheckTheView(
+            viewInteraction = onView(
+                allOf(withId(R.id.text_product_sku), withText(firstProductSku))
+            ),
+            viewAssertion = matches(isDisplayed())
+        )
+    }
+
+    @Test
+    fun swipeRefreshLayout_goToShopifyPageAndSwipeDown_emptyListingsAndThenLoadListingsSuccessfully() {
+        // - Arrange
+        val itemCountAfterSwipeDown = 0
+        val secondProductSku = "DF-YYLJ-IISZ"
+
+        // - Act
+        // Click Shopify tab
+        onView(withId(R.id.tab_layout))
+            .perform(TestUtil.selectTabAt(NavigationUITest.SHOPIFY_TAB_POSITION))
+
+        // Swipe down
+        onView(withId(R.id.swipe_refresh_layout))
+            .perform(swipeDownOnSwipeRefreshLayout(swipeDown()))
+
+        // - Assert
+        // RecyclerView is empty right after swipe down the SwipeRefreshLayout
+        onView(withId(R.id.listing_recycler_view))
+            .check(matches(recyclerViewItemCounts(itemCountAfterSwipeDown)))
+
+        // RecyclerView will be populated later
+        findAndCheckTheView(
+            viewInteraction = onView(
+                allOf(withId(R.id.text_product_sku), withText(secondProductSku))
+            ),
+            viewAssertion = matches(isDisplayed())
         )
     }
 

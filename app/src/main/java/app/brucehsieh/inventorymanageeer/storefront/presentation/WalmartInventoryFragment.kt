@@ -57,14 +57,15 @@ class WalmartInventoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.onListingLoad()
 
         inventoryAdapter = InventoryAdapter(::launchInventoryDialog)
 
         binding.listingRecyclerView.adapter = inventoryAdapter
+        binding.swipeRefreshLayout.setOnRefreshListener { viewModel.onListingLoad() }
 
         viewModel.uiState.observe(viewLifecycleOwner) {
             inventoryAdapter.submitList(it.listings)
+            handleLoading(it.isLoading)
             handleFailure(it.error)
         }
     }
@@ -72,6 +73,10 @@ class WalmartInventoryFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun handleLoading(isLoading: Boolean) {
+        binding.swipeRefreshLayout.isRefreshing = isLoading
     }
 
     private fun handleFailure(error: OneTimeEvent<Throwable>?) {

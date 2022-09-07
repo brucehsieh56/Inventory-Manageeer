@@ -8,8 +8,7 @@ import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.BoundedMatcher
-import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.material.tabs.TabLayout
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.Description
@@ -79,6 +78,21 @@ object TestUtil {
         }
     }
 
+    /**
+     * Reference: https://stackoverflow.com/a/33516360
+     * */
+    fun swipeDownOnSwipeRefreshLayout(viewAction: ViewAction): ViewAction {
+        return object : ViewAction {
+            override fun getConstraints(): Matcher<View> = isDisplayingAtLeast(85)
+
+            override fun getDescription(): String = "Swipe down on SwipeRefreshLayout"
+
+            override fun perform(uiController: UiController?, view: View?) {
+                viewAction.perform(uiController, view)
+            }
+        }
+    }
+
     // Matcher =====================================================================================
 
     /**
@@ -93,6 +107,23 @@ object TestUtil {
             override fun matchesSafely(item: RecyclerView?): Boolean {
                 val viewHolder = item?.findViewHolderForAdapterPosition(position) ?: return false
                 return itemMatchers.matches(viewHolder.itemView)
+            }
+        }
+    }
+
+    /**
+     * Check the number of items for a [RecyclerView].
+     *
+     * Reference: https://stackoverflow.com/a/63583748
+     * */
+    fun recyclerViewItemCounts(numberOfItems: Int): BoundedMatcher<View?, RecyclerView> {
+        return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {
+            override fun describeTo(description: Description?) {
+                description?.appendText("with number of items: $numberOfItems")
+            }
+
+            override fun matchesSafely(item: RecyclerView?): Boolean {
+                return numberOfItems == item!!.adapter!!.itemCount
             }
         }
     }

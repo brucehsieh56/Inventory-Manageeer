@@ -8,5 +8,6 @@ import app.brucehsieh.inventorymanageeer.common.presentation.OneTimeEvent
  * */
 data class InventoryUiState(
     val listings: List<BaseListing> = emptyList(),
+    val isLoading: Boolean = false,
     val error: OneTimeEvent<Throwable>? = null,
 )
